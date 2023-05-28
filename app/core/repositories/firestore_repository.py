@@ -12,6 +12,6 @@ class FirestoreRepository(IRepository):
     def save_record(self, data: dict, table_name: str) -> None:
         # create a new document in the table_name
         try:
-            self.db.collection(table_name).add(data,document_id=data['transaction_id'])
+            self.db.collection(table_name).add(data, document_id=data['transaction_id'])
         except Exception as e:
             raise e

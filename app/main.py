@@ -13,9 +13,11 @@ app.include_router(router, prefix="/api")
 transaction_repository = FirestoreRepository()
 transaction_service = TransactionService(transaction_repository)
 
+
 # Register the transaction service as a dependency
 def get_transaction_service():
     return transaction_service
+
 
 app.dependency_overrides[get_transaction_service] = get_transaction_service
 

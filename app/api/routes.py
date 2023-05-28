@@ -15,12 +15,13 @@ def create_transaction(transaction: C2BRequest):
     transaction_data = transaction.dict()
 
     try:
-    # Process the transaction
+        # Process the transaction
         transaction_service.process_transaction(transaction_data)
 
         return {"message": "Transaction created successfully"}
     except Exception as e:
         return HTTPException(status_code=500, detail=str(e))
+
 
 @router.post("/buy_airtime")
 def create_transaction(airtime: Airtime):
@@ -31,5 +32,3 @@ def create_transaction(airtime: Airtime):
     firebase_service.process_transaction(transaction_data)
 
     return {"message": "Transaction created successfully"}
-
-

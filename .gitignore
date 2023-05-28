@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyz
+*.pyw
+*.pyz
+*.ipynb
+*.egg-info/
+dist/
+build/
+*.egg
+*.egg-info
+*.swp
+*.swo
+*.swa
+
+# Dependency directories
+venv/
+env/
+env_bak/
+
+# IDE
+.idea/
+.vscode/
+
+# Logs
+logs/
+
+# Test coverage
+htmlcov/
+
+# Other
+*.db
+*.log
+.DS_Store

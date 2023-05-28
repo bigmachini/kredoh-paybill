@@ -2,7 +2,7 @@ from fastapi import FastAPI
 
 from app.api.routes import router
 from app.core.repositories.firestore_repository import FirestoreRepository
-from app.core.services.transaction_service import TransactionServiceImpl
+from app.core.services.transaction_service import TransactionService
 
 app = FastAPI()
 
@@ -11,7 +11,7 @@ app.include_router(router, prefix="/api")
 
 # Dependency Injection (DI) setup
 transaction_repository = FirestoreRepository()
-transaction_service = TransactionServiceImpl(transaction_repository)
+transaction_service = TransactionService(transaction_repository)
 
 # Register the transaction service as a dependency
 def get_transaction_service():

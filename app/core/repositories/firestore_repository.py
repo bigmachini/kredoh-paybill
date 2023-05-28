@@ -1,22 +1,17 @@
 import os
 from google.cloud import firestore
-
-from app.core.entities.transaction import Transaction
-from app.interfaces.repositories import TransactionRepository
+from app.core.interfaces.repositories import IRepository
 
 
-class FirestoreRepository(TransactionRepository):
+class FirestoreRepository(IRepository):
     def __init__(self):
         self.db = firestore.Client.from_service_account_json(
             os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
         )
 
-    def save_transaction(self, transaction: Transaction) -> None:
-        # Convert the Transaction entity to a dictionary
-        transaction_data = transaction.__dict__
-
-        # Remove the 'transaction_id' field as Firestore will generate its own ID
-        transaction_data.pop("transaction_id")
-
-        # Create a new document in the 'transactions' collection
-        self.db.collection("transactions").add(transaction_data)
+    def save_record(self, data: dict, table_name: str) -> None:
+        # create a new document in the table_name
+        try:
+            self.db.collection(table_name).add(data,document_id=data['transaction_id'])
+        except Exception as e:
+            raise e

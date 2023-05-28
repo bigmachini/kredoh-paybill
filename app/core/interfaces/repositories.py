@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from app.core.entities.transaction import Transaction
 
 
-class TransactionService(ABC):
+class IRepository(ABC):
     @abstractmethod
-    def process_transaction(self, transaction_data: dict) -> None:
+    def save_record(self, transaction: dict, table_name: str) -> None:
         pass

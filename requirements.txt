@@ -2,3 +2,4 @@ fastapi
 uvicorn
 google-cloud-firestore
 pytest
+phonenumbers

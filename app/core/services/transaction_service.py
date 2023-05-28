@@ -5,7 +5,7 @@ from app.core.interfaces.services import ITransactionService
 
 class TransactionService(ITransactionService):
     def __init__(self, firestore_repository: FirestoreRepository):
-        self.firestore_repository = firestore_repository
+        self.db = firestore_repository
 
     def process_transaction(self, transaction_data: dict) -> None:
         # Map the transaction data from the JSON payload to the Transaction entity
@@ -26,4 +26,4 @@ class TransactionService(ITransactionService):
         )
 
         # Save the transaction data
-        self.firestore_repository.save_record(transaction.__dict__, "c2b-paybill")
+        self.db.save_record(transaction.__dict__, "c2b-paybill", transaction.transaction_id)

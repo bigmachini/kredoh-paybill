@@ -23,6 +23,7 @@ def create_transaction(transaction: C2BRequest):
     print("api::create_transaction::transaction", transaction)
     try:
         transaction_data = transaction.dict()
+        print("api::create_transaction::transaction_data", transaction_data)
         transaction_service.process_transaction(transaction_data)
         return {"message": "Transaction created successfully"}
     except Exception as ex:

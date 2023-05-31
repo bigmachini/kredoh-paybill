@@ -19,13 +19,10 @@ callback_services = {"kyanda": KyandaService(db)}
 
 
 @router.post("/confirmation", status_code=status.HTTP_200_OK)
-def create_transaction(transaction: dict):
-    # Convert the request body to a dictionary
-    print("transaction",transaction)
-    transaction_data = transaction.dict()
-
+def create_transaction(transaction: C2BRequest):
+    print("api::create_transaction::transaction", transaction)
     try:
-        # Process the transaction
+        transaction_data = transaction.dict()
         transaction_service.process_transaction(transaction_data)
         return {"message": "Transaction created successfully"}
     except Exception as ex:
@@ -37,6 +34,8 @@ def create_transaction(transaction: dict):
 
 @router.post("/buy_airtime", status_code=status.HTTP_200_OK)
 def buy_airtime(airtime: Airtime):
+    print("api::buy_airtime::airtime", airtime)
+
     try:
         airtime_services[airtime.vendor].buy_airtime(airtime)
         return {"message": "ok"}
@@ -49,6 +48,8 @@ def buy_airtime(airtime: Airtime):
 
 @router.post("/validation", status_code=status.HTTP_200_OK)
 def validation_api(transaction: C2BRequest):
+    print("api::validation_api::transaction", transaction)
+
     carrier = get_carrier_info(transaction.BillRefNumber)
     print("carrier", carrier)
     if carrier and carrier[0] in ALLOWED_TELCOS:
@@ -65,6 +66,8 @@ def validation_api(transaction: C2BRequest):
 
 @router.post("/callback/kyanda", status_code=status.HTTP_201_CREATED)
 def callback_kyanda(kyanda_ipn: KyandaIPNRequest):
+    print("api::callback_kyanda::kyanda_ipn", kyanda_ipn)
+
     try:
         callback_services["kyanda"].process_ipn(kyanda_ipn)
         return {"message": "Record saved successfully"}

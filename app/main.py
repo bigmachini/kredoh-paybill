@@ -14,7 +14,6 @@ transaction_repository = FirestoreRepository()
 transaction_service = TransactionService(transaction_repository)
 
 
-# Register the transaction service as a dependency
 def get_transaction_service():
     return transaction_service
 
@@ -24,4 +23,4 @@ app.dependency_overrides[get_transaction_service] = get_transaction_service
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8080)

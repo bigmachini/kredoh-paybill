@@ -1,17 +1,21 @@
+from typing import Tuple
+
 import phonenumbers
 from phonenumbers import carrier
 
 
-def get_carrier_info(phone_number: str) -> str:
+def get_carrier_info(phone_number: str) -> [Tuple[str, str], None]:
     try:
         ke_number = phonenumbers.parse(phone_number, "KE")
         if ke_number:
             _carrier = carrier.name_for_number(ke_number, "en")
             if _carrier == 'JTL':
                 _carrier = 'FAIBA'
-            return _carrier.upper()
+            print(f"get_carrier_info:: _carrier: {_carrier}")
+            print("ke_number.national_number", f"0{ke_number.national_number}")
+            return _carrier.upper(), f"0{ke_number.national_number}"
         else:
-            return ""
+            return None
     except phonenumbers.phonenumberutil.NumberParseException as ex:
         print("ex", ex)
 

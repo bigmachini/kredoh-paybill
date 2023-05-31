@@ -1,3 +1,4 @@
+# KYANDA CONSTANTS
 KYANDA_ERROR_CODES = {
     "0000": "Request processed sucessfully.",
     "1100": "Transaction created and pending processing.",
@@ -27,5 +28,10 @@ KYANDA_ERROR_CODES = {
     "9004": "Amount limit exceeded.",
     "9005": "Duplicate transmission"
 }
+AIRTIME_RESPONSE_FAILED = "airtime-response-failed"
+AIRTIME_RESPONSE_SUCCESS = "airtime-response-success"
 
 ALLOWED_TELCOS = ["AIRTEL", "SAFARICOM", "TELKOM", "EQUITEL", "FAIBA"]
+DUPLICATE_TRANSACTION_ERROR = "Duplicate transaction"
+
+C2B_PAYBILL = "c2b-paybill"

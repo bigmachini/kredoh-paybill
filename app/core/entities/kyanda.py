@@ -14,7 +14,7 @@ class KyandaIPNRequest(BaseModel):
     message: str
     transactionDate: str
     transactionRef: str
-    amount: str
+    amount: float
 
 
 @dataclass
@@ -29,4 +29,4 @@ class KyandaIPN:
     message: str
     transaction_date: str
     transaction_ref: str
-    amount: int
+    amount: float

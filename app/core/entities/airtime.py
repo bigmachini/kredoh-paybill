@@ -9,5 +9,6 @@ class Airtime:
     other_phone_number: str
     mpesa_code: str
     firebase_token: Optional[str] = None
-    is_pin_less: Optional[bool] = False
+    is_pin_less: Optional[bool] = True
     vendor: str = "kyanda"
+    retry: int = 0

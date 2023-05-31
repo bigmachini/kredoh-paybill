@@ -1,4 +1,5 @@
-from app.core.entities.kyanda import KyandaIPN, KyandaIPNRequest
+from typing import Any, Tuple
+from app.core.entities.kyanda import KyandaIPNRequest, KyandaIPN
 from app.core.repositories.firestore_repository import FirestoreRepository
 
 
@@ -6,20 +7,7 @@ class KyandaService:
     def __init__(self, firestore_repository: FirestoreRepository):
         self.db = firestore_repository
 
-    category: str
-    source: str
-    destination: str
-    MerchantID: int
-    details: str
-    status: str
-    status_code: str
-    message: str
-    transactionDate: str
-    transactionRef: str
-    amount: str
-
-    def process_ipn(self, payload: KyandaIPNRequest) -> None:
-        # Map the transaction data from the JSON payload to the Transaction entity
+    def process_ipn(self, payload: KyandaIPNRequest) -> Tuple[Any, Any]:
         ipn = KyandaIPN(
             category=payload.category,
             source=payload.source,
@@ -31,7 +19,7 @@ class KyandaService:
             message=payload.message,
             transaction_date=payload.transactionDate,
             transaction_ref=payload.transactionRef,
-            amount=int(float(payload.amount))
+            amount=payload.amount
         )
 
         if ipn.status.upper() == "SUCCESS" or ipn.status_code == "0000":
@@ -39,4 +27,5 @@ class KyandaService:
         else:
             table_name = "kyanda-ipn-failed"
 
-        return self.db.save_record(ipn.__dict__, table_name, ipn.transaction_ref)
+        with self.db.save_record(ipn.__dict__, table_name, ipn.transaction_ref):
+            return None  # Return None or any other desired value as per your use case

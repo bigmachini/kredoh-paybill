@@ -1,66 +1,74 @@
 # app/use_cases/airtime_use_case_impl.py
-import os
+from dataclasses import asdict
 
 import requests
 
+from app.constants import DUPLICATE_TRANSACTION_ERROR, AIRTIME_RESPONSE_SUCCESS, AIRTIME_RESPONSE_FAILED, C2B_PAYBILL
 from app.core.entities.airtime import Airtime
 from app.core.interfaces.airtime_use_case import IAirtimeUseCase
-from app.core.repositories.firestore_repository import FirestoreRepository
-from app.utils import get_carrier_info, format_phone_number, get_signature
+from app.core.repositories.firestore_repository import FirestoreRepository, app_secret
+from app.utils import get_signature, get_carrier_info
 
 
 class AirtimeUseCaseKyanda(IAirtimeUseCase):
     def __init__(self):
-        self.api_key = os.getenv('KYANDA_API_KEY')
-        self.merchant_id = os.getenv('KYANDA_MERCHANT_ID')
-        self.gateway_base_url = os.getenv('KYANDA_BASE_URL')
+        self.api_key = app_secret['kyanda_api']['api_key']
+        self.merchant_id = "kredoh"
+        self.gateway_base_url = app_secret['kyanda_api']['base_url']
         self.db = FirestoreRepository()
-        print(self.api_key, self.merchant_id, self.gateway_base_url)
 
-    def buy_airtime(self, airtime: Airtime) -> dict:
-        print("airtime", airtime)
-        headers = {
-            "apiKey": self.api_key,
-            "Content-Type": "application/json"
-        }
+    def buy_airtime(self, airtime: Airtime) -> None:
+        print(f"AirtimeUseCaseKyanda:: buy_airtime({airtime})")
 
-        telco = get_carrier_info(airtime.other_phone_number)
-        phone_number = format_phone_number(airtime.other_phone_number)
-        initiator_phone = format_phone_number(airtime.phone_number)
-        signature = f'{airtime.amount}{phone_number}{telco}{initiator_phone}{self.merchant_id}'
-        print("signature", signature)
-
-        if airtime.is_pin_less:
-            url = f"{self.gateway_base_url}/billing/v1/airtime/create"
+        # check if the transactions has already been processed.
+        if self.db.get_record("mpesa_code", airtime.mpesa_code, AIRTIME_RESPONSE_SUCCESS):
+            raise Exception(DUPLICATE_TRANSACTION_ERROR)
         else:
-            url = f"{self.gateway_base_url}/billing/v1/pin-airtime/create"
+            headers = {
+                "apiKey": self.api_key,
+                "Content-Type": "application/json"
+            }
 
-        payload = {
-            "MerchantID": self.merchant_id,
-            "phoneNumber": phone_number,
-            "amount": str(airtime.amount),
-            "telco": telco,
-            "initiatorPhone": initiator_phone,
-            "signature": signature
-        }
+            # get telco and formatted number
+            telco, initiator_phone = get_carrier_info(airtime.phone_number)
+            telco, phone_number = get_carrier_info(airtime.other_phone_number)
 
-        print("payload", payload, "url", url)
+            # building the signature
+            signature = f'{airtime.amount}{phone_number}{telco}{initiator_phone}{self.merchant_id}'
 
-        payload["signature"] = get_signature(signature, self.api_key)
-        print("signature", payload["signature"])
+            # Selecting the correct api based on type of airtime
+            if airtime.is_pin_less:
+                url = f"{self.gateway_base_url}/billing/v2/airtime/create"
+            else:
+                url = f"{self.gateway_base_url}/billing/v1/pin-airtime/create"
 
-        response = requests.post(
-            url,
-            headers=headers,
-            json=payload
-        )
-        response_json = response.json()
-        print("response_json", response_json)
+            # building the payload
+            payload = {"MerchantID": self.merchant_id,
+                       "phoneNumber": phone_number,
+                       "amount": str(airtime.amount),
+                       "telco": telco,
+                       "initiatorPhone": initiator_phone,
+                       "signature": get_signature(signature, self.api_key)}
 
-        if response.status_code == 200:
-            self.db.save_record(response_json, "kyanda.py-airtime-response", response_json.get("transactionId", None))
-            return response.json()
-        else:
-            self.db.save_record(response_json, "kyanda.py-airtime-response-failed",
-                                response_json.get("transactionId", None))
-            return {"error": "Failed to create airtime"}  # Customize error handling as per your requirements
+            try:
+                response = requests.post(
+                    url,
+                    headers=headers,
+                    json=payload
+                )
+
+                response_json = response.json()
+                data = {"airtime_request": asdict(airtime), "payload": payload, "response": response_json,
+                        "mpesa_code": airtime.mpesa_code}
+                print(f"AirtimeUseCaseKyanda:: data", data)
+
+                if response.status_code == 200:
+                    table_name = AIRTIME_RESPONSE_SUCCESS
+                else:
+                    table_name = AIRTIME_RESPONSE_FAILED
+
+                self.db.save_record(data, table_name, response_json.get("merchant_reference", None))
+                self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}-{table_name}', response_json, C2B_PAYBILL)
+            except Exception as ex:
+                print("ex", ex.__dict__)
+                raise Exception(f"Error connecting to Kyanda API: {ex}")

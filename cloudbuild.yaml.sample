@@ -1,12 +1,12 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
     id: Build
-    args: [ 'build', '-t', 'gcr.io/kredoh/kredoh-paybill-image', '.' ]
+    args: [ 'build', '-t', 'gcr.io/<project-id>/<image-name>', '.' ]
 
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: Push
-    args: [ 'push', 'gcr.io/kredoh/kredoh-paybill-image' ]
+    args: [ 'push', 'gcr.io/<project-id>/<image-name>'' ]
 
   ## Deploy an image from Container Registry to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -14,18 +14,18 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'kredoh-paybill'
+      - '<app-name>'
       - '--image'
-      - 'gcr.io/kredoh/kredoh-paybill-image'
+      - 'gcr.io/<project-id>/<image-name>'
       - '--platform'
       - 'managed'
       - '--quiet'
       - '--project'
-      - 'kredoh'
+      - '<project-id>'
       - '--service-account'
-      - 'kredoh-production@kredoh.iam.gserviceaccount.com'
+      - '<service-account>'
       - '--region'
-      - 'europe-west4'
+      - '<region>'
       - '--cpu'
       - '1'
       - '--memory'
@@ -37,4 +37,4 @@ steps:
       - 'all-traffic'
 
 images:
-  - gcr.io/kredoh/kredoh-paybill-image
+  - gcr.io/<project-id>/<image-name>

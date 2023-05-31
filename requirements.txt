@@ -3,4 +3,4 @@ uvicorn
 google-cloud-firestore
 google-cloud-secret-manager
 pytest
-phonenumbers
+phonenumbersfile:///home/bigmachini/Documents/kredoh-paybill.yaml

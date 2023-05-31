@@ -16,6 +16,7 @@ class KyandaService:
             details=payload.details,
             status=payload.status,
             status_code=payload.status_code,
+            requestMetadata=payload.requestMetadata,
             message=payload.message,
             transaction_date=payload.transactionDate,
             transaction_ref=payload.transactionRef,

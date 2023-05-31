@@ -56,7 +56,10 @@ def validation_api(transaction: C2BRequest):
             "ResultDesc": "Accepted",
         }
     else:
-        raise HTTPException(status_code=400, detail="Invalid number / Telco not supported")
+        return {
+            "ResultCode": "C2B00011",
+            "ResultDesc": "Rejected",
+        }
 
 
 @router.post("/callback/kyanda", status_code=status.HTTP_201_CREATED)

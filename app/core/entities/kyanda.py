@@ -11,6 +11,7 @@ class KyandaIPNRequest(BaseModel):
     details: dict
     status: str
     status_code: str
+    requestMetadata: dict
     message: str
     transactionDate: str
     transactionRef: str
@@ -26,6 +27,7 @@ class KyandaIPN:
     details: dict
     status: str
     status_code: str
+    requestMetadata: dict
     message: str
     transaction_date: str
     transaction_ref: str

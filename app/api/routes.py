@@ -18,9 +18,10 @@ db = FirestoreRepository()
 callback_services = {"kyanda": KyandaService(db)}
 
 
-@router.post("/confirmation", status_code=status.HTTP_201_CREATED)
-def create_transaction(transaction: C2BRequest):
+@router.post("/confirmation", status_code=status.HTTP_200_OK)
+def create_transaction(transaction: dict):
     # Convert the request body to a dictionary
+    print("transaction",transaction)
     transaction_data = transaction.dict()
 
     try:

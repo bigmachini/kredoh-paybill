@@ -16,21 +16,17 @@ class Transaction:
     third_party_transaction_id: str
     msisdn: str
     first_name: str
-    middle_name: str
-    last_name: str
 
 
 class C2BRequest(BaseModel):
     TransactionType: str
     TransID: str
     TransTime: str
-    TransAmount: float
+    TransAmount: str
     BusinessShortCode: str
     BillRefNumber: str
     InvoiceNumber: str
-    OrgAccountBalance: float
+    OrgAccountBalance: str
     ThirdPartyTransID: str
     MSISDN: str
     FirstName: str
-    MiddleName: str
-    LastName: str

@@ -30,11 +30,10 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
             }
 
             # get telco and formatted number
-            telco, initiator_phone = get_carrier_info(airtime.phone_number)
             telco, phone_number = get_carrier_info(airtime.other_phone_number)
 
             # building the signature
-            signature = f'{airtime.amount}{phone_number}{telco}{initiator_phone}{self.merchant_id}'
+            signature = f'{airtime.amount}{phone_number}{telco}{phone_number}{self.merchant_id}'
 
             # Selecting the correct api based on type of airtime
             if airtime.is_pin_less:
@@ -47,7 +46,7 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
                        "phoneNumber": phone_number,
                        "amount": str(airtime.amount),
                        "telco": telco,
-                       "initiatorPhone": initiator_phone,
+                       "initiatorPhone": phone_number,
                        "signature": get_signature(signature, self.api_key)}
 
             try:

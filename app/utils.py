@@ -12,8 +12,6 @@ def get_carrier_info(phone_number: str) -> [Tuple[str, str], None]:
             _carrier = carrier.name_for_number(ke_number, "en")
             if _carrier == 'JTL':
                 _carrier = 'FAIBA'
-            print(f"get_carrier_info:: _carrier: {_carrier}")
-            print("ke_number.national_number", f"0{ke_number.national_number}")
             return _carrier.upper(), f"0{ke_number.national_number}"
         else:
             return None

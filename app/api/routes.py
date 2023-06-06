@@ -53,7 +53,8 @@ def validation_api(transaction: C2BRequest):
 
     carrier = get_carrier_info(transaction.BillRefNumber)
     print("carrier", carrier)
-    if carrier and carrier[0] in ALLOWED_TELCOS:
+    if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 10 and float(
+            transaction.TransAmount) <= 5000:
         return {
             "ResultCode": "0",
             "ResultDesc": "Accepted",

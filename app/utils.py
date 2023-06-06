@@ -5,6 +5,7 @@ from phonenumbers import carrier
 
 
 def get_carrier_info(phone_number: str) -> [Tuple[str, str], None]:
+    phone_number = phone_number.replace(' ', '')
     try:
         ke_number = phonenumbers.parse(phone_number, "KE")
         if ke_number:

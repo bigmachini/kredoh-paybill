@@ -1,4 +1,5 @@
 from typing import Any, Tuple
+
 from app.core.entities.kyanda import KyandaIPNRequest, KyandaIPN
 from app.core.repositories.firestore_repository import FirestoreRepository
 
@@ -9,14 +10,12 @@ class KyandaService:
 
     def process_ipn(self, payload: KyandaIPNRequest) -> Tuple[Any, Any]:
         ipn = KyandaIPN(
-            category=payload.category,
-            source=payload.source,
             destination=payload.destination,
             merchant_id=payload.MerchantID,
             details=payload.details,
+            request_meta_data=payload.requestMetadata,
             status=payload.status,
             status_code=payload.status_code,
-            requestMetadata=payload.requestMetadata,
             message=payload.message,
             transaction_date=payload.transactionDate,
             transaction_ref=payload.transactionRef,

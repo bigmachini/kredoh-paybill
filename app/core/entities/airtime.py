@@ -6,7 +6,6 @@ from typing import Optional
 class Airtime:
     amount: int
     phone_number: str
-    other_phone_number: str
     mpesa_code: str
     firebase_token: Optional[str] = None
     is_pin_less: Optional[bool] = True

@@ -15,7 +15,7 @@ class TransactionService(ITransactionService):
             transaction_time=transaction_data.get("TransTime"),
             transaction_amount=transaction_data.get("TransAmount"),
             business_short_code=transaction_data.get("BusinessShortCode"),
-            bill_reference_number=transaction_data.get("BillRefNumber"),
+            bill_reference_number=transaction_data.get("BillRefNumber").replace(' ', ''),
             third_party_transaction_id=transaction_data.get("ThirdPartyTransID"),
             first_name=transaction_data.get("FirstName"),
         )

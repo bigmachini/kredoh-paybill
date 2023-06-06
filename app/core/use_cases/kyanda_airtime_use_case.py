@@ -30,7 +30,7 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
             }
 
             # get telco and formatted number
-            telco, phone_number = get_carrier_info(airtime.other_phone_number)
+            telco, phone_number = get_carrier_info(airtime.phone_number)
 
             # building the signature
             signature = f'{airtime.amount}{phone_number}{telco}{phone_number}{self.merchant_id}'

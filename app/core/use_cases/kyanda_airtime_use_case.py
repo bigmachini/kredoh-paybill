@@ -12,8 +12,8 @@ from app.utils import get_signature, get_carrier_info
 
 class AirtimeUseCaseKyanda(IAirtimeUseCase):
     def __init__(self):
-        self.api_key = app_secret['kyanda_api']['api_key']
-        self.merchant_id = "kredoh"
+        self.api_key = app_secret['kyanda_api']['api_key_1']
+        self.merchant_id = "kredoh1"
         self.gateway_base_url = app_secret['kyanda_api']['base_url']
         self.db = FirestoreRepository()
 
@@ -63,11 +63,15 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
 
                 if response.status_code == 200:
                     table_name = AIRTIME_RESPONSE_SUCCESS
+                    self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}-ref',
+                                          response_json.get('merchant_reference'), C2B_PAYBILL)
+
                 else:
                     table_name = AIRTIME_RESPONSE_FAILED
 
                 self.db.save_record(data, table_name, response_json.get("merchant_reference", None))
                 self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}-{table_name}', response_json, C2B_PAYBILL)
+
             except Exception as ex:
                 print("ex", ex.__dict__)
                 raise Exception(f"Error connecting to Kyanda API: {ex}")

@@ -6,7 +6,7 @@ ENV PROJECT_ID kredoh
 
 #Secret manage for odoo-erp detais
 ENV SECRET_ID kredoh-api
-ENV SECRET_VERSION 15
+ENV SECRET_VERSION 18
 
 # Set the working directory in the container
 RUN mkdir /opt/kredoh-paybill

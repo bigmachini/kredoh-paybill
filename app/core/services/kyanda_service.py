@@ -1,5 +1,3 @@
-from typing import Any, Tuple
-
 from app.core.entities.kyanda import KyandaIPNRequest, KyandaIPN
 from app.core.repositories.firestore_repository import FirestoreRepository
 
@@ -8,7 +6,7 @@ class KyandaService:
     def __init__(self, firestore_repository: FirestoreRepository):
         self.db = firestore_repository
 
-    def process_ipn(self, payload: KyandaIPNRequest) -> Tuple[Any, Any]:
+    def process_ipn(self, payload: KyandaIPNRequest):
         ipn = KyandaIPN(
             destination=payload.destination,
             merchant_id=payload.MerchantID,
@@ -27,5 +25,4 @@ class KyandaService:
         else:
             table_name = "kyanda-ipn-failed"
 
-        with self.db.save_record(ipn.__dict__, table_name, ipn.transaction_ref):
-            return None  # Return None or any other desired value as per your use case
+        self.db.save_record(ipn.__dict__, table_name, ipn.transaction_ref)

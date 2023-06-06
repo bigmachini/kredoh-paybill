@@ -74,4 +74,7 @@ def callback_kyanda(kyanda_ipn: KyandaIPNRequest):
         callback_services["kyanda"].process_ipn(kyanda_ipn)
         return {"message": "Record saved successfully"}
     except Exception as ex:
-        raise HTTPException(status_code=500, detail=str(ex).split(":")[0])
+        if str(ex).split(":")[0] == "409 Document already exists":
+            raise HTTPException(status_code=400, detail="Document already exists")
+        else:
+            raise HTTPException(status_code=500, detail=str(ex).split(":")[0])

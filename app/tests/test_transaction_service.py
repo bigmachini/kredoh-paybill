@@ -1,8 +1,6 @@
-from unittest.mock import MagicMock
-
-from app.core.services.transaction_service import TransactionServiceImpl
+from app.core.services.transaction_service import TransactionService
 from app.core.entities.transaction import Transaction
-from app.interfaces.repositories import TransactionRepository
+from app.core.interfaces.repositories import TransactionRepository
 
 
 class MockTransactionRepository(TransactionRepository):
@@ -15,7 +13,7 @@ def test_process_transaction():
     mock_repository = MockTransactionRepository()
 
     # Create an instance of the service
-    transaction_service = TransactionServiceImpl(mock_repository)
+    transaction_service = TransactionService(mock_repository)
 
     # Define the input transaction data
     transaction_data = {

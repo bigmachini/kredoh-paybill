@@ -31,6 +31,9 @@ KYANDA_ERROR_CODES = {
 AIRTIME_RESPONSE_FAILED = "airtime-response-failed"
 AIRTIME_RESPONSE_SUCCESS = "airtime-response-success"
 
+SMS_RESPONSE_FAILED = "sms-response-failed"
+SMS_RESPONSE_SUCCESS = "sms-response-success"
+
 ALLOWED_TELCOS = ["AIRTEL", "SAFARICOM", "TELKOM", "EQUITEL", "FAIBA"]
 DUPLICATE_TRANSACTION_ERROR = "Duplicate transaction"
 

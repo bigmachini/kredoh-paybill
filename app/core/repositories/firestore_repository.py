@@ -36,7 +36,7 @@ class FirestoreRepository(IRepository):
 
         return None
 
-    def update_record(self, _id: str, column: str, value: Any, table: str) -> None:
+    def update_record(self, _id: [str, int], column: str, value: Any, table: str) -> None:
         # Create a reference to the Firestore document
         document_ref = self.db.collection(table).document(_id)
 

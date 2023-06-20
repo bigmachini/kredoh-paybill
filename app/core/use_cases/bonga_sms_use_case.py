@@ -9,17 +9,18 @@ from app.core.repositories.firestore_repository import app_secret, FirestoreRepo
 
 
 class SMSUseCaseBonga(ISMSUseCase):
-    def __init__(self, service_id=4889):
+    def __init__(self, service_id=''):
         self.api_client_id = app_secret['bonga_api']['client_id']
-        self.key = app_secret['bonga_api']['key'],
+        self.key = app_secret['bonga_api']['key']
         self.secret = app_secret['bonga_api']['secret']
         self.service_id = service_id
         self.db = FirestoreRepository()
+        self.url = "http://167.172.14.50:4002/v1/send-sms"
 
     def send_sms(self, sms: SMS) -> None:
         print(f"SMSUseCaseBonga:: send_sms({sms})")
 
-        payload = {
+        params = {
             "apiClientID": self.api_client_id,
             "key": self.key,
             "secret": self.secret,
@@ -28,28 +29,22 @@ class SMSUseCaseBonga(ISMSUseCase):
             "serviceID": self.service_id
         }
 
-        headers = {}
-        url = app_secret['bonga_api']['url_send_sms']
-
         try:
-            response = requests.post(
-                url,
-                headers=headers,
-                json=payload
-            )
-
+            response = requests.post(self.url, params=params)
             response_json = response.json()
-            data = {"sms": asdict(sms), "payload": payload, "response": response_json}
-            print(f"AirtimeUseCaseKyanda:: data", data)
+            data = {"sms": asdict(sms), "response": response_json}
+            print(f"SMSUseCaseBonga:: data", data)
 
             if response.status_code == 200:
-                status = response.get('status', None)
                 table_name = SMS_RESPONSE_SUCCESS
+                unique_id = f'{response_json.get("unique_id", None)}'
+                self.db.save_record(data, table_name, unique_id)
+                self.db.update_record(unique_id, "unique_id", unique_id, table_name)
             else:
                 table_name = SMS_RESPONSE_FAILED
+                self.db.save_record({'failed': response.text}, table_name)
 
-            self.db.save_record(data, table_name, response_json.get("merchant_reference", None))
 
         except Exception as ex:
-            print("ex", ex.__dict__)
+            print("SMSUseCaseBonga:: ex", ex.__dict__)
             raise Exception(f"Error connecting to Bonga API: {ex}")

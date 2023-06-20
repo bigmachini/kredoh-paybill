@@ -5,3 +5,4 @@ from dataclasses import dataclass
 class SMS:
     phone_number: str
     message: str
+    vendor: str = "bonga"

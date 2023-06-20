@@ -3,17 +3,19 @@ from fastapi import APIRouter, HTTPException, status
 from app.constants import ALLOWED_TELCOS, DUPLICATE_TRANSACTION_ERROR
 from app.core.entities.airtime import Airtime
 from app.core.entities.kyanda import KyandaIPNRequest
+from app.core.entities.sms import SMS
 from app.core.entities.transaction import C2BRequest
 from app.core.repositories.firestore_repository import FirestoreRepository
 from app.core.services.kyanda_service import KyandaService
 from app.core.services.transaction_service import TransactionService
+from app.core.use_cases.bonga_sms_use_case import SMSUseCaseBonga
 from app.core.use_cases.kyanda_airtime_use_case import AirtimeUseCaseKyanda
 from app.utils import get_carrier_info
 
 router = APIRouter()
 transaction_service = TransactionService(FirestoreRepository())
 airtime_services = {"kyanda": AirtimeUseCaseKyanda()}
-
+sms_services = {"bonga": SMSUseCaseBonga()}
 db = FirestoreRepository()
 callback_services = {"kyanda": KyandaService(db)}
 
@@ -78,3 +80,17 @@ def callback_kyanda(kyanda_ipn: KyandaIPNRequest):
             raise HTTPException(status_code=400, detail="Document already exists")
         else:
             raise HTTPException(status_code=500, detail=str(ex).split(":")[0])
+
+
+@router.post("/send_sms", status_code=status.HTTP_200_OK)
+def send_sms(sms: SMS):
+    print("api::send_sms::sms", sms)
+
+    try:
+        sms_services[sms.vendor].send_sms(sms)
+        return {"message": "ok"}
+    except Exception as ex:
+        if str(ex) == DUPLICATE_TRANSACTION_ERROR:
+            raise HTTPException(status_code=400, detail="Duplicate transaction")
+        else:
+            raise HTTPException(status_code=500, detail=str(ex))

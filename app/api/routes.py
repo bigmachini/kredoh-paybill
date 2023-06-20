@@ -11,6 +11,7 @@ from app.core.services.kyanda_service import KyandaService
 from app.core.services.transaction_service import TransactionService
 from app.core.use_cases.bonga_sms_use_case import SMSUseCaseBonga
 from app.core.use_cases.kyanda_airtime_use_case import AirtimeUseCaseKyanda
+from app.core.use_cases.safaricom_use_case import SafaricomUseCase
 from app.utils import get_carrier_info
 
 router = APIRouter()
@@ -102,7 +103,7 @@ def reversal(body: Reversal):
     print("api::reversal::body", body)
 
     try:
-        sms_services[sms.vendor].send_sms(sms)
+        SafaricomUseCase().process_mpesa_reversal(body)
         return {"message": "ok"}
     except Exception as ex:
         if str(ex) == DUPLICATE_TRANSACTION_ERROR:

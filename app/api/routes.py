@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, status
 from app.constants import ALLOWED_TELCOS, DUPLICATE_TRANSACTION_ERROR
 from app.core.entities.airtime import Airtime
 from app.core.entities.kyanda import KyandaIPNRequest
+from app.core.entities.safaricom import Reversal
 from app.core.entities.sms import SMS
 from app.core.entities.transaction import C2BRequest
 from app.core.repositories.firestore_repository import FirestoreRepository
@@ -85,6 +86,20 @@ def callback_kyanda(kyanda_ipn: KyandaIPNRequest):
 @router.post("/send_sms", status_code=status.HTTP_200_OK)
 def send_sms(sms: SMS):
     print("api::send_sms::sms", sms)
+
+    try:
+        sms_services[sms.vendor].send_sms(sms)
+        return {"message": "ok"}
+    except Exception as ex:
+        if str(ex) == DUPLICATE_TRANSACTION_ERROR:
+            raise HTTPException(status_code=400, detail="Duplicate transaction")
+        else:
+            raise HTTPException(status_code=500, detail=str(ex))
+
+
+@router.post("/reversal", status_code=status.HTTP_200_OK)
+def reversal(body: Reversal):
+    print("api::reversal::body", body)
 
     try:
         sms_services[sms.vendor].send_sms(sms)

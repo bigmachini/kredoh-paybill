@@ -12,9 +12,9 @@ from app.utils import get_signature, get_carrier_info
 
 class AirtimeUseCaseKyanda(IAirtimeUseCase):
     def __init__(self):
-        self.api_key = app_secret['kyanda_api']['api_key_1']
+        self.api_key = app_secret["kyanda"]['api_key']
         self.merchant_id = "kredoh1"
-        self.gateway_base_url = app_secret['kyanda_api']['base_url']
+        self.gateway_base_url = app_secret['kyanda']['base_url']
         self.db = FirestoreRepository()
 
     def buy_airtime(self, airtime: Airtime) -> None:

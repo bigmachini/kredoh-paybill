@@ -83,3 +83,13 @@ def test_callback_kyanda(client):
     response = client.post("/callback/kyanda", json=kyanda_ipn_data)
     assert response.status_code == status.HTTP_201_CREATED
     assert response.json() == {"message": "Record saved successfully"}
+
+
+def test_send_sms(client):
+    sms_data = {
+        "phone_number": "254700000000",
+        "message": "this is a test message",
+    }
+    response = client.post("/send_sms", json=sms_data)
+    assert response.status_code == status.HTTP_200_OK
+    assert response.json() == {"message": "Transaction created successfully"}

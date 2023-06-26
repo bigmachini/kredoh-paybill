@@ -53,8 +53,7 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
                 response = requests.post(
                     url,
                     headers=headers,
-                    json=payload,
-                    timeout=30
+                    json=payload
                 )
 
                 response_json = response.json()

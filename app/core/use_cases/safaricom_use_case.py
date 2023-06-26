@@ -1,9 +1,11 @@
 import os
+from dataclasses import asdict
 
 import requests
 
+from app.constants import C2B_PAYBILL, REVERSAL_RESPONSE_SUCCESS, REVERSAL_RESPONSE_FAILED
 from app.core.entities.safaricom import Reversal
-from app.core.repositories.firestore_repository import app_secret
+from app.core.repositories.firestore_repository import app_secret, FirestoreRepository
 from app.utils import encrypt_initiator_password, get_auth
 
 
@@ -11,6 +13,7 @@ class SafaricomUseCase:
     def __init__(self):
         self.mpesa_auth_token = get_auth(app_secret['safaricom']['consumer_key'],
                                          app_secret['safaricom']['consumer_secret'])
+        self.db = FirestoreRepository()
 
     def process_mpesa_reversal(self, body: Reversal):
         access_token = self.mpesa_auth_token.get('access_token', None)
@@ -41,5 +44,22 @@ class SafaricomUseCase:
             "method_type": "POST"
         }
         url = os.getenv('MPESA_URL_V1')
-        response = requests.request("POST", f'{url}/reversal', headers=headers, json=payload)
-        print("process_mpesa_reversal:: response --> ", response)
+
+        try:
+            response = requests.request("POST", f'{url}/reversal', headers=headers, json=payload)
+            print("process_mpesa_reversal:: response --> ", response.json())
+
+            if response.status_code == 200:
+                table_name = REVERSAL_RESPONSE_SUCCESS
+
+                res = response.json()
+            else:
+                table_name = REVERSAL_RESPONSE_FAILED
+                res = response.text
+
+            self.db.save_record({"request": asdict(body), "response": res}, table_name, body.mpesa_code)
+            self.db.update_record(body.mpesa_code, table_name, response.json(), C2B_PAYBILL)
+
+        except Exception as ex:
+            print("process_mpesa_reversal:: ex", ex.__dict__)
+            raise Exception(f"{ex}")

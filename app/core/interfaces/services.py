@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 
-from app.core.entities.transaction import Transaction
 
-
-class ITransactionService(ABC):
+class ISafaricomService(ABC):
     @abstractmethod
-    def process_transaction(self, transaction_data: dict) -> None:
+    def process_c2b(self, transaction_data: dict) -> None:
+        pass
+
+    @abstractmethod
+    def process_reversal_callback(self, body: dict) -> None:
         pass

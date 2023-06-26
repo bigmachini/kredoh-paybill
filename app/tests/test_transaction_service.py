@@ -1,7 +1,6 @@
-from app.core.services.transaction_service import TransactionService
+from app.core.services.safaricom_service import SafaricomService
 from app.core.entities.transaction import Transaction
 from app.core.interfaces.repositories import TransactionRepository
-
 
 class MockTransactionRepository(TransactionRepository):
     def save_transaction(self, transaction: Transaction) -> None:
@@ -13,7 +12,7 @@ def test_process_transaction():
     mock_repository = MockTransactionRepository()
 
     # Create an instance of the service
-    transaction_service = TransactionService(mock_repository)
+    safaricom_service = SafaricomService(mock_repository)
 
     # Define the input transaction data
     transaction_data = {
@@ -32,8 +31,8 @@ def test_process_transaction():
         "LastName": "Doe"
     }
 
-    # Invoke the process_transaction method
-    transaction_service.process_transaction(transaction_data)
+    # Invoke the process_c2b method
+    transaction_service.process_c2b(transaction_data)
 
     # Assert that the save_transaction method of the repository is called with the correct arguments
     mock_repository.save_transaction.assert_called_once()

@@ -63,7 +63,7 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
 
                 if response.status_code == 200:
                     table_name = AIRTIME_RESPONSE_SUCCESS
-                    self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}-ref',
+                    self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}_ref',
                                           response_json.get('merchant_reference'), C2B_PAYBILL)
 
                 else:

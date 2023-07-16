@@ -5,8 +5,11 @@ FROM python:3.8-slim-buster
 ENV PROJECT_ID kredoh
 
 #Secret manage for odoo-erp detais
-ENV SECRET_ID kredoh-api
-ENV SECRET_VERSION 18
+ENV SECRET_ID kredoh-paybill
+ENV SECRET_VERSION 3
+
+ENV MPESA_URL https://mpesa.bigmachini.net/process_mpesa
+ENV MPESA_URL_V1 https://hyj2np9tcp4vvtrkvmte.bigmachini.net
 
 # Set the working directory in the container
 RUN mkdir /opt/kredoh-paybill

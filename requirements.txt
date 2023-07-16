@@ -2,6 +2,8 @@ fastapi
 uvicorn
 google-cloud-firestore
 google-cloud-secret-manager
+google-cloud-storage
 pytest
 phonenumbers
 requests
+cryptography

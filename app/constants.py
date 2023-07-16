@@ -38,3 +38,7 @@ ALLOWED_TELCOS = ["AIRTEL", "SAFARICOM", "TELKOM", "EQUITEL", "FAIBA"]
 DUPLICATE_TRANSACTION_ERROR = "Duplicate transaction"
 
 C2B_PAYBILL = "c2b-paybill"
+REVERSAL_RESPONSE_FAILED = "reversal-response-failed"
+REVERSAL_RESPONSE_SUCCESS = "reversal-response-success"
+REVERSAL_CALLBACK = "reversal-callback"
+REVERSALS = "reversals"

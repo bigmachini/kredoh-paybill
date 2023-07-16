@@ -3,7 +3,8 @@ from dataclasses import asdict
 
 import requests
 
-from app.constants import DUPLICATE_TRANSACTION_ERROR, AIRTIME_RESPONSE_SUCCESS, AIRTIME_RESPONSE_FAILED, C2B_PAYBILL
+from app.constants import DUPLICATE_TRANSACTION_ERROR, AIRTIME_RESPONSE_SUCCESS, AIRTIME_RESPONSE_FAILED, C2B_PAYBILL, \
+    REVERSALS
 from app.core.entities.airtime import Airtime
 from app.core.interfaces.airtime_use_case import IAirtimeUseCase
 from app.core.repositories.firestore_repository import FirestoreRepository, app_secret
@@ -16,6 +17,11 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
         self.merchant_id = "kredoh1"
         self.gateway_base_url = app_secret['kyanda']['base_url']
         self.db = FirestoreRepository()
+
+    def reverse_airtime(self, mpesa_code: str, amount: int) -> None:
+        print(f"AirtimeUseCaseKyanda:: reverse_airtime({mpesa_code},{amount})")
+        self.db.save_record({"amount": amount, "mpesa_code": mpesa_code},
+                            REVERSALS, mpesa_code)
 
     def buy_airtime(self, airtime: Airtime) -> None:
         print(f"AirtimeUseCaseKyanda:: buy_airtime({airtime})")
@@ -66,12 +72,15 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
                     self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}_ref',
                                           response_json.get('merchant_reference'), C2B_PAYBILL)
 
+                    if response_json.get('status_code', None) != "0000":
+                        self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
                 else:
                     table_name = AIRTIME_RESPONSE_FAILED
+                    self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
 
                 self.db.save_record(data, table_name, response_json.get("merchant_reference", None))
                 self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}-{table_name}', response_json, C2B_PAYBILL)
 
             except Exception as ex:
                 print("ex", ex.__dict__)
-                raise Exception(f"Error connecting to Kyanda API: {ex}")
+                self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)

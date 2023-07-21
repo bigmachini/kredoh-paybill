@@ -21,8 +21,3 @@ def get_transaction_service():
 
 
 app.dependency_overrides[get_transaction_service] = get_transaction_service
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="127.0.0.1", port=os.getenv("PORT", 7070))

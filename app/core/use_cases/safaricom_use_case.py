@@ -3,6 +3,7 @@ from dataclasses import asdict
 
 import requests
 
+from app import _logger
 from app.constants import C2B_PAYBILL, REVERSAL_RESPONSE_SUCCESS, REVERSAL_RESPONSE_FAILED
 from app.core.entities.safaricom import Reversal
 from app.core.repositories.firestore_repository import app_secret, FirestoreRepository
@@ -47,7 +48,7 @@ class SafaricomUseCase:
 
         try:
             response = requests.request("POST", f'{url}/reversal', headers=headers, json=payload)
-            print("process_mpesa_reversal:: response --> ", response.json())
+            _logger.log_text("process_mpesa_reversal:: response --> ", response.json())
 
             if response.status_code == 200:
                 table_name = REVERSAL_RESPONSE_SUCCESS
@@ -61,5 +62,5 @@ class SafaricomUseCase:
             self.db.update_record(body.mpesa_code, table_name, response.json(), C2B_PAYBILL)
 
         except Exception as ex:
-            print("process_mpesa_reversal:: ex", ex.__dict__)
+            _logger.log_text("process_mpesa_reversal:: ex", ex.__dict__)
             raise Exception(f"{ex}")

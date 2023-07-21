@@ -8,6 +8,8 @@ from cryptography import x509
 from cryptography.hazmat.primitives.asymmetric import padding
 from phonenumbers import carrier
 
+from app import _logger
+
 
 def get_carrier_info(phone_number: str) -> [Tuple[str, str], None]:
     phone_number = phone_number.replace(' ', '')
@@ -21,7 +23,7 @@ def get_carrier_info(phone_number: str) -> [Tuple[str, str], None]:
         else:
             return None
     except phonenumbers.phonenumberutil.NumberParseException as ex:
-        print("ex", ex)
+        _logger.log_text("ex", ex)
 
 
 def format_phone_number(phone_number):
@@ -53,7 +55,7 @@ def encrypt_initiator_password(bucket_name, cert_file_name, initiator_pass):
 
 
     except Exception as ex:
-        print("encrypt_initiator_password:: ex", ex)
+        _logger.log_text("encrypt_initiator_password:: ex", ex)
         return False
 
 
@@ -82,5 +84,5 @@ def get_auth(consumer_key, consumer_secret):
             res['auth'] = 'auth'
         return res
     except Exception as ex:
-        print("get_auth:: ex", ex)
+        _logger.log_text("get_auth:: ex", ex)
         return {}

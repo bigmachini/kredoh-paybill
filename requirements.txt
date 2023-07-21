@@ -3,6 +3,7 @@ uvicorn
 google-cloud-firestore
 google-cloud-secret-manager
 google-cloud-storage
+google-cloud-logging
 pytest
 phonenumbers
 requests

@@ -6,4 +6,4 @@ services:
     ports:
       - 8080:8080
     environment:
-      - "GOOGLE_APPLICATION_CREDENTIALS=/opt/.google/google.json"
+      - GOOGLE_APPLICATION_CREDENTIALS=/opt/.google/google.json

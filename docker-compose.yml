@@ -3,9 +3,9 @@ services:
   app:
     build:
       context: .
-      dockerfile: DockerFile
+      dockerfile: Dockerfile
     ports:
-      - "7070:7070"
+      - "8010:8020"
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
     volumes:

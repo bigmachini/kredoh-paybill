@@ -20,7 +20,7 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
 
     def reverse_airtime(self, mpesa_code: str, amount: int) -> None:
         print(f"AirtimeUseCaseKyanda:: reverse_airtime({mpesa_code},{amount})")
-        self.db.save_record({"amount": amount, "mpesa_code": mpesa_code},
+        self.db.save_record({"amount": str(amount), "mpesa_code": mpesa_code},
                             REVERSALS, mpesa_code)
 
     def buy_airtime(self, airtime: Airtime) -> None:
@@ -72,7 +72,7 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
                     self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}_ref',
                                           response_json.get('merchant_reference'), C2B_PAYBILL)
 
-                    if response_json.get('status_code', None) != "0000":
+                    if response_json.get('status_code', None) not in ["0000", "1100"]:
                         self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
                 else:
                     table_name = AIRTIME_RESPONSE_FAILED
@@ -82,5 +82,6 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
                 self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}-{table_name}', response_json, C2B_PAYBILL)
 
             except Exception as ex:
-                print("ex", ex.__dict__)
+                print("AirtimeUseCaseKyanda:: ex", ex.__dict__)
+                print("AirtimeUseCaseKyanda:: ex", ex)
                 self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)

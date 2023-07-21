@@ -66,7 +66,7 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
                 response_json = response.json()
                 data = {"airtime_request": asdict(airtime), "payload": payload, "response": response_json,
                         "mpesa_code": airtime.mpesa_code}
-                _logger.log_text(f"AirtimeUseCaseKyanda:: data", data)
+                _logger.log_text(f"AirtimeUseCaseKyanda:: data {data}")
 
                 if response.status_code == 200:
                     table_name = AIRTIME_RESPONSE_SUCCESS
@@ -83,6 +83,6 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
                 self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}-{table_name}', response_json, C2B_PAYBILL)
 
             except Exception as ex:
-                _logger.log_text("AirtimeUseCaseKyanda:: ex", ex.__dict__)
-                _logger.log_text("AirtimeUseCaseKyanda:: ex", ex)
+                _logger.log_text(f"AirtimeUseCaseKyanda:: ex {ex.__dict__}")
+                _logger.log_text(f"AirtimeUseCaseKyanda:: ex {ex}")
                 self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)

@@ -25,10 +25,10 @@ callback_services = {"kyanda": KyandaService(db)}
 
 @router.post("/confirmation", status_code=status.HTTP_200_OK)
 def create_transaction(transaction: C2BRequest):
-    _logger.log_text("api::create_transaction::transaction", transaction.__dict__)
+    _logger.log_text(f"api::create_transaction::transaction {transaction.__dict__}")
     try:
         transaction_data = transaction.dict()
-        _logger.log_text("api::create_transaction::transaction_data", transaction_data)
+        _logger.log_text(f"api::create_transaction::transaction_data {transaction_data}")
         safaricom_service.process_c2b(transaction_data)
         return {"message": "Transaction created successfully"}
     except Exception as ex:
@@ -40,7 +40,7 @@ def create_transaction(transaction: C2BRequest):
 
 @router.post("/buy_airtime", status_code=status.HTTP_200_OK)
 def buy_airtime(airtime: Airtime):
-    _logger.log_text("api::buy_airtime::airtime", airtime.__dict__)
+    _logger.log_text(f"api::buy_airtime::airtime {airtime.__dict__}")
 
     try:
         airtime_services[airtime.vendor].buy_airtime(airtime)
@@ -54,10 +54,10 @@ def buy_airtime(airtime: Airtime):
 
 @router.post("/validation", status_code=status.HTTP_200_OK)
 def validation_api(transaction: C2BRequest):
-    _logger.log_text("api::validation_api::transaction", transaction.__dict__)
+    _logger.log_text(f"api::validation_api::transaction {transaction.__dict__}")
 
     carrier = get_carrier_info(transaction.BillRefNumber)
-    _logger.log_text("carrier", carrier)
+    _logger.log_text(f"carrier {carrier}")
     if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 10 and float(
             transaction.TransAmount) <= 5000:
         return {
@@ -73,7 +73,7 @@ def validation_api(transaction: C2BRequest):
 
 @router.post("/callback/kyanda", status_code=status.HTTP_201_CREATED)
 def callback_kyanda(kyanda_ipn: KyandaIPNRequest):
-    _logger.log_text("api::callback_kyanda::kyanda_ipn", kyanda_ipn.__dict__)
+    _logger.log_text(f"api::callback_kyanda::kyanda_ipn {kyanda_ipn.__dict__}")
 
     try:
         callback_services["kyanda"].process_ipn(kyanda_ipn)
@@ -87,7 +87,7 @@ def callback_kyanda(kyanda_ipn: KyandaIPNRequest):
 
 @router.post("/send_sms", status_code=status.HTTP_200_OK)
 def send_sms(sms: SMS):
-    _logger.log_text("api::send_sms::sms", sms.__dict__)
+    _logger.log_text(f"api::send_sms::sms {sms.__dict__}")
 
     try:
         sms_services[sms.vendor].send_sms(sms)
@@ -101,7 +101,7 @@ def send_sms(sms: SMS):
 
 @router.post("/reversal", status_code=status.HTTP_200_OK)
 def reversal(body: Reversal):
-    _logger.log_text("api::reversal::body", body.__dict__)
+    _logger.log_text(f"api::reversal::body {body.__dict__}")
 
     try:
         SafaricomUseCase().process_mpesa_reversal(body)

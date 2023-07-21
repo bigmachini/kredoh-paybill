@@ -34,7 +34,7 @@ class SMSUseCaseBonga(ISMSUseCase):
             response = requests.post(self.url, params=params)
             response_json = response.json()
             data = {"sms": asdict(sms), "response": response_json}
-            _logger.log_text(f"SMSUseCaseBonga:: data", data)
+            _logger.log_text(f"SMSUseCaseBonga:: data {data}" )
 
             if response.status_code == 200:
                 table_name = SMS_RESPONSE_SUCCESS
@@ -47,5 +47,5 @@ class SMSUseCaseBonga(ISMSUseCase):
 
 
         except Exception as ex:
-            _logger.log_text("SMSUseCaseBonga:: ex", ex.__dict__)
+            _logger.log_text(f"SMSUseCaseBonga:: ex {ex.__dict__}")
             raise Exception(f"Error connecting to Bonga API: {ex}")

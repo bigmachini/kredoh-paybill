@@ -1,7 +1,9 @@
 version: '2'
 services:
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: DockerFile
     ports:
       - "7070:7070"
     environment:

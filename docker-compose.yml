@@ -9,4 +9,4 @@ services:
       GOOGLE_APPLICATION_CREDENTIALS: /tmp/keys/keyfile.json
     volumes:
       # Inject your specific service account keyfile into the container at runtime.
-      - ${GCP_KEY_PATH}:/opt/.google/google.json:ro
+      - ${GOOGLE_APPLICATION_CREDENTIALS}:/opt/.google/google.json:ro

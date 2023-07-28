@@ -76,4 +76,4 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
             except Exception as ex:
                 _logger.log_text(f"AirtimeUseCaseKyanda:: ex {ex.__dict__}")
                 _logger.log_text(f"AirtimeUseCaseKyanda:: ex {ex}")
-                self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
+                reverse_airtime(airtime.mpesa_code, airtime.amount_paid)

@@ -4,7 +4,7 @@ from dataclasses import asdict
 import requests
 
 from app import _logger
-from app.constants import REVERSAL_RESPONSE_SUCCESS, REVERSAL_RESPONSE_FAILED
+from app.constants import REVERSAL_RESPONSE_SUCCESS
 from app.core.entities.safaricom import Reversal
 from app.core.repositories.firestore_repository import app_secret, FirestoreRepository
 from app.utils import encrypt_initiator_password, get_auth
@@ -53,12 +53,11 @@ class SafaricomUseCase:
             if response.status_code == 200:
                 table_name = REVERSAL_RESPONSE_SUCCESS
                 res = response.json()
+                self.db.save_record({"request": asdict(body), "response": res, "mpesa_code": body.mpesa_code},
+                                    table_name,
+                                    body.mpesa_code)
             else:
-                table_name = REVERSAL_RESPONSE_FAILED
-                res = response.text
-
-            self.db.save_record({"request": asdict(body), "response": res, "mpesa_code": body.mpesa_code}, table_name,
-                                body.mpesa_code)
+                raise Exception(f"process_mpesa_reversal:: response --> {response.text}")
 
         except Exception as ex:
             _logger.log_text(f"process_mpesa_reversal:: ex {ex.__dict__}")

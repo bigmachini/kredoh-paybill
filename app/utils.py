@@ -75,8 +75,8 @@ def get_auth(consumer_key, consumer_secret):
             "method_type": "GET"
         }
         res = {}
-        url = os.getenv('MPESA_URL_V1')
-        r = requests.post(f'{url}/get_auth', data=json.dumps(payload), headers=headers, timeout=30)
+        mpesa_url = os.getenv("MPESA_URL_V1")
+        r = requests.post(f'{mpesa_url}/get_auth', data=json.dumps(payload), headers=headers, timeout=30)
 
         if r.status_code == 200:
             from time import time

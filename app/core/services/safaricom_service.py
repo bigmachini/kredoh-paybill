@@ -40,4 +40,4 @@ class SafaricomService(ISafaricomService):
         self.db.save_record(callback.__dict__, REVERSAL_CALLBACK, callback.transaction_id)
 
     def process_transaction_status_callback(self, body: TransactionStatusCallbackResult):
-        self.db.save_record(body.__dict__, TRANSACTION_STATUS_CALLBACK, body.Result.__dict__.get("ConversationID"))
+        self.db.save_record(body, TRANSACTION_STATUS_CALLBACK, body.get("ConversationID"))

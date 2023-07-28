@@ -13,7 +13,7 @@ from app.core.services.safaricom_service import SafaricomService
 from app.core.use_cases.bonga_sms_use_case import SMSUseCaseBonga
 from app.core.use_cases.kyanda_airtime_use_case import AirtimeUseCaseKyanda
 from app.core.use_cases.safaricom_use_case import SafaricomUseCase
-from app.utils import get_carrier_info, reverse_airtime, write_to_bucket
+from app.utils import get_carrier_info, reverse_airtime, write_to_bucket, delete_file
 
 router = APIRouter()
 safaricom_service = SafaricomService(FirestoreRepository())
@@ -29,6 +29,7 @@ def create_transaction(transaction: C2BRequest):
     try:
         carrier = get_carrier_info(transaction.BillRefNumber)
         _logger.log_text(f"carrier {carrier}")
+        delete_file("kredoh-paybill", f"validation/{transaction.TransID}")
         if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 10 and float(
                 transaction.TransAmount) <= 5000:
             transaction_data = transaction.dict()
@@ -37,6 +38,7 @@ def create_transaction(transaction: C2BRequest):
             return {"message": "Transaction created successfully"}
         else:
             reverse_airtime(transaction.TransID, int(float(transaction.TransAmount)))
+
     except Exception as ex:
         if str(ex).split(":")[0] == "409 Document already exists":
             raise HTTPException(status_code=400, detail="Document already exists")

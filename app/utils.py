@@ -105,3 +105,11 @@ def write_to_bucket(c2b: C2BRequest):
     blob = bucket.blob(file_name)
     blob.upload_from_string(json.dumps(c2b.__dict__))
     _logger.log_text(f'write_to_bucket File {file_name} uploaded to {blob.public_url}')
+
+
+def delete_file(bucket_name: str, file_name: str):
+    client = storage.Client()
+    bucket = client.bucket(bucket_name)
+    blob = bucket.blob(file_name)
+    blob.delete()
+    _logger.log_text(f'delete_file File {file_name} deleted from {bucket_name}')

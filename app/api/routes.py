@@ -121,7 +121,7 @@ def reversal(body: Reversal):
 
 @router.post("/callback/reversal", status_code=status.HTTP_201_CREATED)
 def callback_reversal(req: ReversalCallbackResult):
-    _logger.log_text("api::callback_reversal::req", req.__dict__)
+    _logger.log_text(f"api::callback_reversal::req {req.__dict__}")
 
     try:
         safaricom_service.process_reversal_callback(req.Result)

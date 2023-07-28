@@ -17,6 +17,9 @@ class SafaricomUseCase:
         self.db = FirestoreRepository()
 
     def process_mpesa_reversal(self, body: Reversal):
+        if not self.mpesa_auth_token:
+            raise Exception("Failed to get auth token")
+
         access_token = self.mpesa_auth_token.get('access_token', None)
         api_url = app_secret['safaricom']['reversal_url']
         headers = {"Authorization": "Bearer %s" % access_token}
@@ -57,7 +60,7 @@ class SafaricomUseCase:
                                     table_name,
                                     body.mpesa_code)
             else:
-                raise Exception(f"process_mpesa_reversal:: response --> {response.text}")
+                raise Exception(f" response --> {response.text}")
 
         except Exception as ex:
             _logger.log_text(f"process_mpesa_reversal:: ex {ex.__dict__}")

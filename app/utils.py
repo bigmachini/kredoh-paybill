@@ -111,5 +111,6 @@ def delete_file(bucket_name: str, file_name: str):
     client = storage.Client()
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(file_name)
-    blob.delete()
-    _logger.log_text(f'delete_file File {file_name} deleted from {bucket_name}')
+    if blob.exists():
+        blob.delete()
+        _logger.log_text(f'delete_file File {file_name} deleted from {bucket_name}')

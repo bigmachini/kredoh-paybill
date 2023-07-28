@@ -4,8 +4,7 @@ from app import _logger
 from app.constants import ALLOWED_TELCOS, DUPLICATE_TRANSACTION_ERROR
 from app.core.entities.airtime import Airtime
 from app.core.entities.kyanda import KyandaIPNRequest
-from app.core.entities.safaricom import Reversal, ReversalCallbackResult, TransactionStatus, \
-    TransactionStatusCallbackResult
+from app.core.entities.safaricom import Reversal, ReversalCallbackResult, TransactionStatusCallbackResult
 from app.core.entities.sms import SMS
 from app.core.entities.transaction import C2BRequest
 from app.core.repositories.firestore_repository import FirestoreRepository
@@ -138,7 +137,7 @@ def callback_reversal(req: ReversalCallbackResult):
 
 
 @router.post("/transaction_status", status_code=status.HTTP_200_OK)
-def transaction_status(req: TransactionStatus):
+def transaction_status(req: C2BRequest):
     _logger.log_text(f"api::transaction_status::req {req.__dict__}")
 
     try:

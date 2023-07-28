@@ -5,7 +5,8 @@ import requests
 
 from app import _logger, app_secret
 from app.constants import REVERSAL_RESPONSE_SUCCESS, TRANSACTION_STATUS_RESPONSE
-from app.core.entities.safaricom import Reversal, TransactionStatus
+from app.core.entities.safaricom import Reversal
+from app.core.entities.transaction import C2BRequest
 from app.core.repositories.firestore_repository import FirestoreRepository
 from app.utils import encrypt_initiator_password, get_auth
 
@@ -66,7 +67,7 @@ class SafaricomUseCase:
                 _logger.log_text(f"SafaricomUseCase::process_mpesa_reversal:: ex {ex.__dict__}")
                 raise Exception(f"{ex}")
 
-    def check_transaction_status(self, body: TransactionStatus):
+    def check_transaction_status(self, body: C2BRequest):
         if not self.mpesa_auth_token:
             raise Exception("Failed to get auth token")
         else:
@@ -81,13 +82,13 @@ class SafaricomUseCase:
             data = {"Initiator": app_secret['safaricom']['initiator'],
                     "SecurityCredential": security_credential.decode('utf-8'),
                     "CommandID": "TransactionStatusQuery",
-                    "TransactionID": body.mpesa_code,
+                    "TransactionID": body.TransID,
                     "PartyA": app_secret['safaricom']['business_short_code'],
                     "IdentifierType": "4",
                     "ResultURL": app_secret['safaricom']['transaction_status_result_url'],
                     "QueueTimeOutURL": app_secret['safaricom']['transaction_status_timeout_callback_url'],
-                    "Remarks": body.mpesa_code,
-                    "Occasion": json.dumps(body.c2b_request.__dict__)
+                    "Remarks": body.TransID,
+                    "Occasion": json.dumps(body.__dict__)
                     }
 
             payload = {

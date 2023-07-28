@@ -1,19 +1,11 @@
 from dataclasses import dataclass
 from typing import Union
 
-from app.core.entities.transaction import C2BRequest
-
 
 @dataclass
 class Reversal:
     mpesa_code: str
     amount: int
-
-
-@dataclass
-class TransactionStatus:
-    mpesa_code: str
-    c2b_request: C2BRequest
 
 
 @dataclass
@@ -39,6 +31,7 @@ class ReversalCallbackRequest:
 @dataclass
 class ReversalCallbackResult:
     Result: ReversalCallbackRequest
+
 
 @dataclass
 class TransactionStatusCallbackResult:

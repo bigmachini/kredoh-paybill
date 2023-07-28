@@ -105,7 +105,7 @@ class SafaricomUseCase:
             _logger.log_text(f"SafaricomUseCase::check_transaction_status:: response --> {response.json()}")
             if response.status_code == 200:
                 res = response.json()
-                self.db.save_record({"request": asdict(body), "response": res, "mpesa_code": body.mpesa_code},
+                self.db.save_record({"response": res, "mpesa_code": body.mpesa_code},
                                     TRANSACTION_STATUS_RESPONSE,
                                     res["ConversationID"])
 

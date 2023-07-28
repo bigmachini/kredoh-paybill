@@ -36,3 +36,7 @@ class ReversalCallbackRequest:
 @dataclass
 class ReversalCallbackResult:
     Result: ReversalCallbackRequest
+
+@dataclass
+class TransactionStatusCallbackResult:
+    Result: object

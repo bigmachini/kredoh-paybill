@@ -6,10 +6,12 @@ from typing import Tuple
 import phonenumbers
 from cryptography import x509
 from cryptography.hazmat.primitives.asymmetric import padding
+from google.cloud import storage
 from phonenumbers import carrier
 
 from app import _logger
 from app.constants import REVERSALS
+from app.core.entities.transaction import C2BRequest
 from app.core.repositories.firestore_repository import FirestoreRepository
 
 
@@ -94,3 +96,12 @@ def reverse_airtime(mpesa_code: str, amount: int) -> None:
     _logger.log_text(f"reverse_airtime({mpesa_code},{amount})")
     FirestoreRepository().save_record({"amount": str(amount), "mpesa_code": mpesa_code},
                                       REVERSALS, mpesa_code)
+
+
+def write_to_bucket(c2b: C2BRequest):
+    client = storage.Client()
+    bucket = client.bucket("kredoh-paybill")
+    file_name = f"validation/{c2b.TransID}"
+    blob = bucket.blob(file_name)
+    blob.upload_from_string(json.dumps(c2b.__dict__))
+    _logger.log_text(f'write_to_bucket File {file_name} uploaded to {blob.public_url}')

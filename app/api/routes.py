@@ -13,7 +13,7 @@ from app.core.services.safaricom_service import SafaricomService
 from app.core.use_cases.bonga_sms_use_case import SMSUseCaseBonga
 from app.core.use_cases.kyanda_airtime_use_case import AirtimeUseCaseKyanda
 from app.core.use_cases.safaricom_use_case import SafaricomUseCase
-from app.utils import get_carrier_info, reverse_airtime
+from app.utils import get_carrier_info, reverse_airtime, write_to_bucket
 
 router = APIRouter()
 safaricom_service = SafaricomService(FirestoreRepository())
@@ -66,6 +66,7 @@ def validation_api(transaction: C2BRequest):
     _logger.log_text(f"carrier {carrier}")
     if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 5 and float(
             transaction.TransAmount) <= 5000:
+        write_to_bucket(transaction)
         return {
             "ResultCode": "0",
             "ResultDesc": "Accepted",

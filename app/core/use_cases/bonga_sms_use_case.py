@@ -2,11 +2,11 @@ from dataclasses import asdict
 
 import requests
 
-from app import _logger
+from app import _logger, app_secret
 from app.constants import SMS_RESPONSE_SUCCESS, SMS_RESPONSE_FAILED
 from app.core.entities.sms import SMS
 from app.core.interfaces.sms_use_case import ISMSUseCase
-from app.core.repositories.firestore_repository import app_secret, FirestoreRepository
+from app.core.repositories.firestore_repository import FirestoreRepository
 
 
 class SMSUseCaseBonga(ISMSUseCase):
@@ -34,7 +34,7 @@ class SMSUseCaseBonga(ISMSUseCase):
             response = requests.post(self.url, params=params)
             response_json = response.json()
             data = {"sms": asdict(sms), "response": response_json}
-            _logger.log_text(f"SMSUseCaseBonga:: data {data}" )
+            _logger.log_text(f"SMSUseCaseBonga:: data {data}")
 
             if response.status_code == 200:
                 table_name = SMS_RESPONSE_SUCCESS

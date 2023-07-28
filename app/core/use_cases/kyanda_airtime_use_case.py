@@ -3,11 +3,11 @@ from dataclasses import asdict
 
 import requests
 
-from app import _logger
-from app.constants import DUPLICATE_TRANSACTION_ERROR, AIRTIME_RESPONSE_SUCCESS, AIRTIME_RESPONSE_FAILED, REVERSALS
+from app import _logger, app_secret
+from app.constants import DUPLICATE_TRANSACTION_ERROR, AIRTIME_RESPONSE_SUCCESS, AIRTIME_RESPONSE_FAILED
 from app.core.entities.airtime import Airtime
 from app.core.interfaces.airtime_use_case import IAirtimeUseCase
-from app.core.repositories.firestore_repository import FirestoreRepository, app_secret
+from app.core.repositories.firestore_repository import FirestoreRepository
 from app.utils import get_signature, get_carrier_info, reverse_airtime
 
 

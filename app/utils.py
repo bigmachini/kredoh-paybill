@@ -1,5 +1,4 @@
 import json
-import os
 from base64 import b64encode
 from typing import Tuple
 
@@ -9,7 +8,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from google.cloud import storage
 from phonenumbers import carrier
 
-from app import _logger
+from app import _logger, app_secret
 from app.constants import REVERSALS
 from app.core.entities.transaction import C2BRequest
 from app.core.repositories.firestore_repository import FirestoreRepository
@@ -77,7 +76,7 @@ def get_auth(consumer_key, consumer_secret):
             "method_type": "GET"
         }
         res = {}
-        mpesa_url = os.getenv("MPESA_URL_V1")
+        mpesa_url = app_secret.get('mpesa_url')
         r = requests.post(f'{mpesa_url}/get_auth', data=json.dumps(payload), headers=headers, timeout=30)
 
         if r.status_code == 200:

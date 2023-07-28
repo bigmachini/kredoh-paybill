@@ -4,7 +4,7 @@ from app import _logger
 from app.constants import ALLOWED_TELCOS, DUPLICATE_TRANSACTION_ERROR
 from app.core.entities.airtime import Airtime
 from app.core.entities.kyanda import KyandaIPNRequest
-from app.core.entities.safaricom import Reversal, ReversalCallbackResult
+from app.core.entities.safaricom import Reversal, ReversalCallbackResult, TransactionStatus
 from app.core.entities.sms import SMS
 from app.core.entities.transaction import C2BRequest
 from app.core.repositories.firestore_repository import FirestoreRepository
@@ -81,11 +81,11 @@ def validation_api(transaction: C2BRequest):
 
 
 @router.post("/callback/kyanda", status_code=status.HTTP_201_CREATED)
-def callback_kyanda(kyanda_ipn: KyandaIPNRequest):
-    _logger.log_text(f"api::callback_kyanda::kyanda_ipn {kyanda_ipn.__dict__}")
+def callback_kyanda(req: KyandaIPNRequest):
+    _logger.log_text(f"api::callback_kyanda::kyanda_ipn {req.__dict__}")
 
     try:
-        callback_services["kyanda"].process_ipn(kyanda_ipn)
+        callback_services["kyanda"].process_ipn(req)
         return {"message": "Record saved successfully"}
     except Exception as ex:
         if str(ex).split(":")[0] == "409 Document already exists":
@@ -95,11 +95,11 @@ def callback_kyanda(kyanda_ipn: KyandaIPNRequest):
 
 
 @router.post("/send_sms", status_code=status.HTTP_200_OK)
-def send_sms(sms: SMS):
-    _logger.log_text(f"api::send_sms::sms {sms.__dict__}")
+def send_sms(req: SMS):
+    _logger.log_text(f"api::send_sms::sms {req.__dict__}")
 
     try:
-        sms_services[sms.vendor].send_sms(sms)
+        sms_services[req.vendor].send_sms(req)
         return {"message": "ok"}
     except Exception as ex:
         if str(ex) == DUPLICATE_TRANSACTION_ERROR:
@@ -109,11 +109,11 @@ def send_sms(sms: SMS):
 
 
 @router.post("/reversal", status_code=status.HTTP_200_OK)
-def reversal(body: Reversal):
-    _logger.log_text(f"api::reversal::body {body.__dict__}")
+def reversal(req: Reversal):
+    _logger.log_text(f"api::reversal::body {req.__dict__}")
 
     try:
-        SafaricomUseCase().process_mpesa_reversal(body)
+        SafaricomUseCase().process_mpesa_reversal(req)
         return {"message": "ok"}
     except Exception as ex:
         if str(ex) == DUPLICATE_TRANSACTION_ERROR:
@@ -128,6 +128,34 @@ def callback_reversal(req: ReversalCallbackResult):
 
     try:
         safaricom_service.process_reversal_callback(req.Result)
+        return {"message": "Record saved successfully"}
+    except Exception as ex:
+        if str(ex).split(":")[0] == "409 Document already exists":
+            raise HTTPException(status_code=400, detail="Document already exists")
+        else:
+            raise HTTPException(status_code=500, detail=str(ex).split(":")[0])
+
+
+@router.post("/transaction_status", status_code=status.HTTP_200_OK)
+def transaction_status(req: TransactionStatus):
+    _logger.log_text(f"api::transaction_status::body {req.__dict__}")
+
+    try:
+        SafaricomUseCase().check_transaction_status(req)
+        return {"message": "ok"}
+    except Exception as ex:
+        if str(ex) == DUPLICATE_TRANSACTION_ERROR:
+            raise HTTPException(status_code=400, detail="Duplicate transaction")
+        else:
+            raise HTTPException(status_code=500, detail=str(ex))
+
+
+@router.post("/callback/transaction_status", status_code=status.HTTP_201_CREATED)
+def callback_transaction_status(req: ReversalCallbackResult):
+    _logger.log_text(f"api::callback_transaction_status::req {req.__dict__}")
+
+    try:
+        safaricom_service.process_transaction_status_callback(req.Result)
         return {"message": "Record saved successfully"}
     except Exception as ex:
         if str(ex).split(":")[0] == "409 Document already exists":

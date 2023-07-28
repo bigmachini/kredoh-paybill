@@ -1,12 +1,11 @@
-import os
 from dataclasses import asdict
 
 import requests
 
-from app import _logger
-from app.constants import REVERSAL_RESPONSE_SUCCESS
-from app.core.entities.safaricom import Reversal
-from app.core.repositories.firestore_repository import app_secret, FirestoreRepository
+from app import _logger, app_secret
+from app.constants import REVERSAL_RESPONSE_SUCCESS, TRANSACTION_STATUS_RESPONSE
+from app.core.entities.safaricom import Reversal, TransactionStatus
+from app.core.repositories.firestore_repository import FirestoreRepository
 from app.utils import encrypt_initiator_password, get_auth
 
 
@@ -19,74 +18,25 @@ class SafaricomUseCase:
     def process_mpesa_reversal(self, body: Reversal):
         if not self.mpesa_auth_token:
             raise Exception("Failed to get auth token")
-
-        access_token = self.mpesa_auth_token.get('access_token', None)
-        api_url = app_secret['safaricom']['reversal_url']
-        headers = {"Authorization": "Bearer %s" % access_token}
-        security_credential = encrypt_initiator_password(app_secret['safaricom']['cert_bucket_name'],
-                                                         app_secret['safaricom']['cert_file_name'],
-                                                         app_secret['safaricom']['initiator_pass'])
-
-        data = {"Initiator": app_secret['safaricom']['initiator'],
-                "SecurityCredential": security_credential.decode('utf-8'),
-                "CommandID": "TransactionReversal",
-                "TransactionID": body.mpesa_code,
-                "Amount": body.amount,
-                "ReceiverParty": app_secret['safaricom']['business_short_code'],
-                "RecieverIdentifierType": "11",
-                "ResultURL": app_secret['safaricom']['reversal_result_url'],
-                "QueueTimeOutURL": app_secret['safaricom']['reversal_timeout_callback_url'],
-                "Remarks": "Online Reversal",
-                "Occasion": " "
-                }
-
-        payload = {
-            "url": api_url,
-            "payload": data,
-            "auth": {},
-            "headers": headers,
-            "method_type": "POST"
-        }
-        url = os.getenv('MPESA_URL_V1')
-
-        try:
-            response = requests.request("POST", f'{url}/reversal', headers=headers, json=payload)
-            _logger.log_text(f"SafaricomUseCase::process_mpesa_reversal:: response --> {response.json()}")
-
-            if response.status_code == 200:
-                table_name = REVERSAL_RESPONSE_SUCCESS
-                res = response.json()
-                self.db.save_record({"request": asdict(body), "response": res, "mpesa_code": body.mpesa_code},
-                                    table_name,
-                                    body.mpesa_code)
-            else:
-                raise Exception(f" response --> {response.text}")
-
-        except Exception as ex:
-            _logger.log_text(f"SafaricomUseCase::process_mpesa_reversal:: ex {ex.__dict__}")
-            raise Exception(f"{ex}")
-
-    def check_transaction_status(self, mpesa_code: str, store_number: str):
-        if not self.mpesa_auth_token:
-            raise Exception("Failed to get auth token")
         else:
             access_token = self.mpesa_auth_token.get('access_token', None)
-            api_url = "https://api.safaricom.co.ke/mpesa/transactionstatus/v1/query"
+            api_url = app_secret['safaricom']['reversal_url']
             headers = {"Authorization": "Bearer %s" % access_token}
+            security_credential = encrypt_initiator_password(app_secret['safaricom']['cert_bucket_name'],
+                                                             app_secret['safaricom']['cert_file_name'],
+                                                             app_secret['safaricom']['initiator_pass'])
 
-            security_credential = encrypt_initiator_password(app_secret['cert_bucket_name'],
-                                                             app_secret['cert_file_name'],
-                                                             app_secret['initiator_pass'])
-            data = {"Initiator": app_secret['initiator'],
+            data = {"Initiator": app_secret['safaricom']['initiator'],
                     "SecurityCredential": security_credential.decode('utf-8'),
-                    "CommandID": "TransactionStatusQuery",
-                    "TransactionID": mpesa_code,
-                    "PartyA": store_number,
-                    "IdentifierType": "4",
-                    "ResultURL": "https://kredoh-api-hjcvzq6kaq-ez.a.run.app/transaction_status_callback",
-                    "QueueTimeOutURL": "https://kredoh-api-hjcvzq6kaq-ez.a.run.app/transaction_status_callback",
-                    "Remarks": mpesa_code,
-                    "Occasion": mpesa_code
+                    "CommandID": "TransactionReversal",
+                    "TransactionID": body.mpesa_code,
+                    "Amount": body.amount,
+                    "ReceiverParty": app_secret['safaricom']['business_short_code'],
+                    "RecieverIdentifierType": "11",
+                    "ResultURL": app_secret['safaricom']['reversal_result_url'],
+                    "QueueTimeOutURL": app_secret['safaricom']['reversal_timeout_callback_url'],
+                    "Remarks": "Online Reversal",
+                    "Occasion": " "
                     }
 
             payload = {
@@ -96,20 +46,68 @@ class SafaricomUseCase:
                 "headers": headers,
                 "method_type": "POST"
             }
-            url = os.getenv('MPESA_URL_V1')
-            _logger.log_text(f"SafaricomUseCase::check_transaction_status:: payload --> {payload} url --> {url}")
+            mpesa_url = app_secret.get('mpesa_url')
+
+            try:
+                response = requests.request("POST", f'{mpesa_url}/reversal', headers=headers, json=payload)
+                _logger.log_text(f"SafaricomUseCase::process_mpesa_reversal:: response --> {response.json()}")
+
+                if response.status_code == 200:
+                    table_name = REVERSAL_RESPONSE_SUCCESS
+                    res = response.json()
+                    self.db.save_record({"request": asdict(body), "response": res, "mpesa_code": body.mpesa_code},
+                                        table_name,
+                                        body.mpesa_code)
+                else:
+                    raise Exception(f" response --> {response.text}")
+
+            except Exception as ex:
+                _logger.log_text(f"SafaricomUseCase::process_mpesa_reversal:: ex {ex.__dict__}")
+                raise Exception(f"{ex}")
+
+    def check_transaction_status(self, body: TransactionStatus):
+        if not self.mpesa_auth_token:
+            raise Exception("Failed to get auth token")
+        else:
+            access_token = self.mpesa_auth_token.get('access_token', None)
+            api_url = app_secret['safaricom']['transaction_status_url']
+            headers = {"Authorization": "Bearer %s" % access_token}
+
+            security_credential = encrypt_initiator_password(app_secret['safaricom']['cert_bucket_name'],
+                                                             app_secret['safaricom']['cert_file_name'],
+                                                             app_secret['safaricom']['initiator_pass'])
+
+            data = {"Initiator": app_secret['safaricom']['initiator'],
+                    "SecurityCredential": security_credential.decode('utf-8'),
+                    "CommandID": "TransactionStatusQuery",
+                    "TransactionID": body.mpesa_code,
+                    "PartyA": app_secret['safaricom']['business_short_code'],
+                    "IdentifierType": "4",
+                    "ResultURL": app_secret['safaricom']['transaction_status_result_url'],
+                    "QueueTimeOutURL": app_secret['safaricom']['transaction_status_timeout_callback_url'],
+                    "Remarks": body.mpesa_code,
+                    "Occasion": body.mpesa_code
+                    }
+
+            payload = {
+                "url": api_url,
+                "payload": data,
+                "auth": {},
+                "headers": headers,
+                "method_type": "POST"
+            }
+            mpesa_url = app_secret.get('mpesa_url')
+            _logger.log_text(f"SafaricomUseCase::check_transaction_status:: payload --> {payload} url --> {mpesa_url}")
         try:
-            response = requests.request("POST", f'{url}/transaction_status', headers=headers, json=payload)
-            response_text = response.text.replace('\n', '').replace(' ', '')
-            _logger.log_text(
-                f"SafaricomUseCase::check_transaction_status:: status_code --> {response.status_code}  response_text --> {response_text}")
-
-            vals = {'status_code': response.status_code, 'response_text': response_text}
-
+            response = requests.request("POST", f'{mpesa_url}/transaction_status', headers=headers, json=payload)
+            _logger.log_text(f"SafaricomUseCase::check_transaction_status:: response --> {response.json()}")
             if response.status_code == 200:
-                vals = response.json()
+                res = response.json()
+                self.db.save_record({"request": asdict(body), "response": res, "mpesa_code": body.mpesa_code},
+                                    TRANSACTION_STATUS_RESPONSE,
+                                    body.mpesa_code)
             else:
-                raise Exception(f"Failed to get auth token:: {response_text}")
+                raise Exception(f" response --> {response.text}")
 
         except Exception as ex:
             _logger.log_text(f'SafaricomUseCase::check_transaction_status:: ex --> {ex}')

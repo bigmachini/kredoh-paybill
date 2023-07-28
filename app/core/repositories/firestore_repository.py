@@ -1,18 +1,10 @@
-import json
-import os
 from typing import Tuple, Any
 
-from google.cloud import firestore, secretmanager
+from google.cloud import firestore
 from google.cloud.firestore_v1 import FieldFilter
 
 from app import _logger
 from app.core.interfaces.repositories import IRepository
-
-secrets = secretmanager.SecretManagerServiceClient()
-_name = f"projects/{os.environ.get('PROJECT_ID')}/" \
-        f"secrets/{os.environ.get('SECRET_ID')}/" \
-        f"versions/{os.environ.get('SECRET_VERSION')}"
-app_secret = json.loads(secrets.access_secret_version(request={"name": _name}).payload.data.decode("utf-8"))
 
 
 class FirestoreRepository(IRepository):

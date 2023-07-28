@@ -9,6 +9,11 @@ class Reversal:
 
 
 @dataclass
+class TransactionStatus:
+    mpesa_code: str
+
+
+@dataclass
 class ReversalCallback:
     conversation_id: str
     originator_conversation_id: str

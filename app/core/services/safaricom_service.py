@@ -38,3 +38,6 @@ class SafaricomService(ISafaricomService):
 
         # Save the transaction data
         self.db.save_record(callback.__dict__, REVERSAL_CALLBACK, callback.transaction_id)
+
+    def process_transaction_status_callback(self, Result):
+        pass

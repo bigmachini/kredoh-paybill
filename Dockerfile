@@ -6,10 +6,8 @@ ENV PROJECT_ID kredoh
 
 #Secret manage for odoo-erp detais
 ENV SECRET_ID kredoh-paybill
-ENV SECRET_VERSION 3
+ENV SECRET_VERSION 5
 
-ENV MPESA_URL https://mpesa.bigmachini.net/process_mpesa
-ENV MPESA_URL_V1 https://hyj2np9tcp4vvtrkvmte.bigmachini.net
 
 # Set the working directory in the container
 RUN mkdir /opt/kredoh-paybill

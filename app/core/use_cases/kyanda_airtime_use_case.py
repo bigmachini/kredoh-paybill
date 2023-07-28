@@ -8,7 +8,7 @@ from app.constants import DUPLICATE_TRANSACTION_ERROR, AIRTIME_RESPONSE_SUCCESS,
 from app.core.entities.airtime import Airtime
 from app.core.interfaces.airtime_use_case import IAirtimeUseCase
 from app.core.repositories.firestore_repository import FirestoreRepository, app_secret
-from app.utils import get_signature, get_carrier_info
+from app.utils import get_signature, get_carrier_info, reverse_airtime
 
 
 class AirtimeUseCaseKyanda(IAirtimeUseCase):
@@ -17,11 +17,6 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
         self.merchant_id = "kredoh1"
         self.gateway_base_url = app_secret['kyanda']['base_url']
         self.db = FirestoreRepository()
-
-    def reverse_airtime(self, mpesa_code: str, amount: int) -> None:
-        _logger.log_text(f"AirtimeUseCaseKyanda:: reverse_airtime({mpesa_code},{amount})")
-        self.db.save_record({"amount": str(amount), "mpesa_code": mpesa_code},
-                            REVERSALS, mpesa_code)
 
     def buy_airtime(self, airtime: Airtime) -> None:
         _logger.log_text(f"AirtimeUseCaseKyanda:: buy_airtime({airtime})")
@@ -71,10 +66,10 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
                     table_name = AIRTIME_RESPONSE_SUCCESS
 
                     if response_json.get('status_code', None) not in ["0000", "1100"]:
-                        self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
+                        reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
                 else:
                     table_name = AIRTIME_RESPONSE_FAILED
-                    self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
+                    reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
 
                 self.db.save_record(data, table_name, response_json.get("merchant_reference", None))
 

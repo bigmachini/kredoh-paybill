@@ -13,7 +13,7 @@ from app.core.services.safaricom_service import SafaricomService
 from app.core.use_cases.bonga_sms_use_case import SMSUseCaseBonga
 from app.core.use_cases.kyanda_airtime_use_case import AirtimeUseCaseKyanda
 from app.core.use_cases.safaricom_use_case import SafaricomUseCase
-from app.utils import get_carrier_info
+from app.utils import get_carrier_info, reverse_airtime
 
 router = APIRouter()
 safaricom_service = SafaricomService(FirestoreRepository())
@@ -27,10 +27,16 @@ callback_services = {"kyanda": KyandaService(db)}
 def create_transaction(transaction: C2BRequest):
     _logger.log_text(f"api::create_transaction::transaction {transaction.__dict__}")
     try:
-        transaction_data = transaction.dict()
-        _logger.log_text(f"api::create_transaction::transaction_data {transaction_data}")
-        safaricom_service.process_c2b(transaction_data)
-        return {"message": "Transaction created successfully"}
+        carrier = get_carrier_info(transaction.BillRefNumber)
+        _logger.log_text(f"carrier {carrier}")
+        if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 10 and float(
+                transaction.TransAmount) <= 5000:
+            transaction_data = transaction.dict()
+            _logger.log_text(f"api::create_transaction::transaction_data {transaction_data}")
+            safaricom_service.process_c2b(transaction_data)
+            return {"message": "Transaction created successfully"}
+        else:
+            reverse_airtime(transaction.TransID, int(float(transaction.TransAmount)))
     except Exception as ex:
         if str(ex).split(":")[0] == "409 Document already exists":
             raise HTTPException(status_code=400, detail="Document already exists")
@@ -58,7 +64,7 @@ def validation_api(transaction: C2BRequest):
 
     carrier = get_carrier_info(transaction.BillRefNumber)
     _logger.log_text(f"carrier {carrier}")
-    if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 10 and float(
+    if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 5 and float(
             transaction.TransAmount) <= 5000:
         return {
             "ResultCode": "0",

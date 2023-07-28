@@ -8,7 +8,3 @@ class IAirtimeUseCase(ABC):
     @abstractmethod
     def buy_airtime(self, airtime: Airtime) -> dict:
         pass
-
-    @abstractmethod
-    def reverse_airtime(self, mpesa_code: str, amount: int) -> None:
-        pass

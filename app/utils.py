@@ -9,6 +9,8 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from phonenumbers import carrier
 
 from app import _logger
+from app.constants import REVERSALS
+from app.core.repositories.firestore_repository import FirestoreRepository
 
 
 def get_carrier_info(phone_number: str) -> [Tuple[str, str], None]:
@@ -86,3 +88,9 @@ def get_auth(consumer_key, consumer_secret):
     except Exception as ex:
         _logger.log_text(f"get_auth:: ex {ex}")
         return {}
+
+
+def reverse_airtime(mpesa_code: str, amount: int) -> None:
+    _logger.log_text(f"reverse_airtime({mpesa_code},{amount})")
+    FirestoreRepository().save_record({"amount": str(amount), "mpesa_code": mpesa_code},
+                                      REVERSALS, mpesa_code)

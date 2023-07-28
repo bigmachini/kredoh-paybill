@@ -1,4 +1,4 @@
-from app.constants import C2B_PAYBILL, REVERSAL_CALLBACK
+from app.constants import C2B_PAYBILL, REVERSAL_CALLBACK, TRANSACTION_STATUS_CALLBACK
 from app.core.entities.safaricom import ReversalCallback, ReversalCallbackRequest, TransactionStatusCallbackResult
 from app.core.entities.transaction import Transaction
 from app.core.interfaces.services import ISafaricomService
@@ -39,6 +39,5 @@ class SafaricomService(ISafaricomService):
         # Save the transaction data
         self.db.save_record(callback.__dict__, REVERSAL_CALLBACK, callback.transaction_id)
 
-    def process_transaction_status_callback(self, body:TransactionStatusCallbackResult):
-        self.db.save_record(body.__dict__, REVERSAL_CALLBACK, body.Result.__dict__.get("ConversationID"))
-
+    def process_transaction_status_callback(self, body: TransactionStatusCallbackResult):
+        self.db.save_record(body.__dict__, TRANSACTION_STATUS_CALLBACK, body.Result.__dict__.get("ConversationID"))

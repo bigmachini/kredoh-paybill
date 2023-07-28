@@ -5,6 +5,7 @@ from typing import Tuple, Any
 from google.cloud import firestore, secretmanager
 from google.cloud.firestore_v1 import FieldFilter
 
+from app import _logger
 from app.core.interfaces.repositories import IRepository
 
 secrets = secretmanager.SecretManagerServiceClient()
@@ -42,4 +43,4 @@ class FirestoreRepository(IRepository):
 
         # Update the document with the new value
         document_ref.set({column: value}, merge=True)
-        print(f"Firestore table '{table}' with ID '{_id}' updated successfully.")
+        _logger.log_text(f"Firestore table '{table}' with ID '{_id}' updated successfully.")

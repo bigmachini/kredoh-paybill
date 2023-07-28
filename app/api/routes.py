@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, status
 
+from app import _logger
 from app.constants import ALLOWED_TELCOS, DUPLICATE_TRANSACTION_ERROR
 from app.core.entities.airtime import Airtime
 from app.core.entities.kyanda import KyandaIPNRequest
@@ -12,7 +13,7 @@ from app.core.services.safaricom_service import SafaricomService
 from app.core.use_cases.bonga_sms_use_case import SMSUseCaseBonga
 from app.core.use_cases.kyanda_airtime_use_case import AirtimeUseCaseKyanda
 from app.core.use_cases.safaricom_use_case import SafaricomUseCase
-from app.utils import get_carrier_info
+from app.utils import get_carrier_info, reverse_airtime
 
 router = APIRouter()
 safaricom_service = SafaricomService(FirestoreRepository())
@@ -24,12 +25,18 @@ callback_services = {"kyanda": KyandaService(db)}
 
 @router.post("/confirmation", status_code=status.HTTP_200_OK)
 def create_transaction(transaction: C2BRequest):
-    print("api::create_transaction::transaction", transaction.__dict__)
+    _logger.log_text(f"api::create_transaction::transaction {transaction.__dict__}")
     try:
-        transaction_data = transaction.dict()
-        print("api::create_transaction::transaction_data", transaction_data)
-        safaricom_service.process_c2b(transaction_data)
-        return {"message": "Transaction created successfully"}
+        carrier = get_carrier_info(transaction.BillRefNumber)
+        _logger.log_text(f"carrier {carrier}")
+        if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 10 and float(
+                transaction.TransAmount) <= 5000:
+            transaction_data = transaction.dict()
+            _logger.log_text(f"api::create_transaction::transaction_data {transaction_data}")
+            safaricom_service.process_c2b(transaction_data)
+            return {"message": "Transaction created successfully"}
+        else:
+            reverse_airtime(transaction.TransID, int(float(transaction.TransAmount)))
     except Exception as ex:
         if str(ex).split(":")[0] == "409 Document already exists":
             raise HTTPException(status_code=400, detail="Document already exists")
@@ -39,7 +46,7 @@ def create_transaction(transaction: C2BRequest):
 
 @router.post("/buy_airtime", status_code=status.HTTP_200_OK)
 def buy_airtime(airtime: Airtime):
-    print("api::buy_airtime::airtime", airtime.__dict__)
+    _logger.log_text(f"api::buy_airtime::airtime {airtime.__dict__}")
 
     try:
         airtime_services[airtime.vendor].buy_airtime(airtime)
@@ -53,11 +60,11 @@ def buy_airtime(airtime: Airtime):
 
 @router.post("/validation", status_code=status.HTTP_200_OK)
 def validation_api(transaction: C2BRequest):
-    print("api::validation_api::transaction", transaction.__dict__)
+    _logger.log_text(f"api::validation_api::transaction {transaction.__dict__}")
 
     carrier = get_carrier_info(transaction.BillRefNumber)
-    print("carrier", carrier)
-    if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 10 and float(
+    _logger.log_text(f"carrier {carrier}")
+    if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 5 and float(
             transaction.TransAmount) <= 5000:
         return {
             "ResultCode": "0",
@@ -72,7 +79,7 @@ def validation_api(transaction: C2BRequest):
 
 @router.post("/callback/kyanda", status_code=status.HTTP_201_CREATED)
 def callback_kyanda(kyanda_ipn: KyandaIPNRequest):
-    print("api::callback_kyanda::kyanda_ipn", kyanda_ipn.__dict__)
+    _logger.log_text(f"api::callback_kyanda::kyanda_ipn {kyanda_ipn.__dict__}")
 
     try:
         callback_services["kyanda"].process_ipn(kyanda_ipn)
@@ -86,7 +93,7 @@ def callback_kyanda(kyanda_ipn: KyandaIPNRequest):
 
 @router.post("/send_sms", status_code=status.HTTP_200_OK)
 def send_sms(sms: SMS):
-    print("api::send_sms::sms", sms.__dict__)
+    _logger.log_text(f"api::send_sms::sms {sms.__dict__}")
 
     try:
         sms_services[sms.vendor].send_sms(sms)
@@ -100,7 +107,7 @@ def send_sms(sms: SMS):
 
 @router.post("/reversal", status_code=status.HTTP_200_OK)
 def reversal(body: Reversal):
-    print("api::reversal::body", body.__dict__)
+    _logger.log_text(f"api::reversal::body {body.__dict__}")
 
     try:
         SafaricomUseCase().process_mpesa_reversal(body)
@@ -114,7 +121,7 @@ def reversal(body: Reversal):
 
 @router.post("/callback/reversal", status_code=status.HTTP_201_CREATED)
 def callback_reversal(req: ReversalCallbackResult):
-    print("api::callback_reversal::req", req.__dict__)
+    _logger.log_text(f"api::callback_reversal::req {req.__dict__}")
 
     try:
         safaricom_service.process_reversal_callback(req.Result)

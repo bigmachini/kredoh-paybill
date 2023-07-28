@@ -27,7 +27,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Set the port number that the container should listen on
-ENV PORT=8080
+ENV PORT=7070
 
 # Command to run the application
-CMD python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+CMD python -m uvicorn app.main:app --host 127.0.0.1 --port $PORT

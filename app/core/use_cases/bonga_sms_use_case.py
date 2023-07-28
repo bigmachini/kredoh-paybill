@@ -2,6 +2,7 @@ from dataclasses import asdict
 
 import requests
 
+from app import _logger
 from app.constants import SMS_RESPONSE_SUCCESS, SMS_RESPONSE_FAILED
 from app.core.entities.sms import SMS
 from app.core.interfaces.sms_use_case import ISMSUseCase
@@ -18,7 +19,7 @@ class SMSUseCaseBonga(ISMSUseCase):
         self.url = "http://167.172.14.50:4002/v1/send-sms"
 
     def send_sms(self, sms: SMS) -> None:
-        print(f"SMSUseCaseBonga:: send_sms({sms})")
+        _logger.log_text(f"SMSUseCaseBonga:: send_sms({sms})")
 
         params = {
             "apiClientID": self.api_client_id,
@@ -33,7 +34,7 @@ class SMSUseCaseBonga(ISMSUseCase):
             response = requests.post(self.url, params=params)
             response_json = response.json()
             data = {"sms": asdict(sms), "response": response_json}
-            print(f"SMSUseCaseBonga:: data", data)
+            _logger.log_text(f"SMSUseCaseBonga:: data {data}" )
 
             if response.status_code == 200:
                 table_name = SMS_RESPONSE_SUCCESS
@@ -46,5 +47,5 @@ class SMSUseCaseBonga(ISMSUseCase):
 
 
         except Exception as ex:
-            print("SMSUseCaseBonga:: ex", ex.__dict__)
+            _logger.log_text(f"SMSUseCaseBonga:: ex {ex.__dict__}")
             raise Exception(f"Error connecting to Bonga API: {ex}")

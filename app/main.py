@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 
 from app.api.routes import router
@@ -19,8 +21,3 @@ def get_transaction_service():
 
 
 app.dependency_overrides[get_transaction_service] = get_transaction_service
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8080)

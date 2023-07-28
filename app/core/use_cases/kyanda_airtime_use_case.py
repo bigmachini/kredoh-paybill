@@ -3,12 +3,12 @@ from dataclasses import asdict
 
 import requests
 
-from app.constants import DUPLICATE_TRANSACTION_ERROR, AIRTIME_RESPONSE_SUCCESS, AIRTIME_RESPONSE_FAILED, C2B_PAYBILL, \
-    REVERSALS
+from app import _logger
+from app.constants import DUPLICATE_TRANSACTION_ERROR, AIRTIME_RESPONSE_SUCCESS, AIRTIME_RESPONSE_FAILED, REVERSALS
 from app.core.entities.airtime import Airtime
 from app.core.interfaces.airtime_use_case import IAirtimeUseCase
 from app.core.repositories.firestore_repository import FirestoreRepository, app_secret
-from app.utils import get_signature, get_carrier_info
+from app.utils import get_signature, get_carrier_info, reverse_airtime
 
 
 class AirtimeUseCaseKyanda(IAirtimeUseCase):
@@ -18,13 +18,8 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
         self.gateway_base_url = app_secret['kyanda']['base_url']
         self.db = FirestoreRepository()
 
-    def reverse_airtime(self, mpesa_code: str, amount: int) -> None:
-        print(f"AirtimeUseCaseKyanda:: reverse_airtime({mpesa_code},{amount})")
-        self.db.save_record({"amount": str(amount), "mpesa_code": mpesa_code},
-                            REVERSALS, mpesa_code)
-
     def buy_airtime(self, airtime: Airtime) -> None:
-        print(f"AirtimeUseCaseKyanda:: buy_airtime({airtime})")
+        _logger.log_text(f"AirtimeUseCaseKyanda:: buy_airtime({airtime})")
 
         # check if the transactions has already been processed.
         if self.db.get_record("mpesa_code", airtime.mpesa_code, AIRTIME_RESPONSE_SUCCESS):
@@ -65,23 +60,20 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
                 response_json = response.json()
                 data = {"airtime_request": asdict(airtime), "payload": payload, "response": response_json,
                         "mpesa_code": airtime.mpesa_code}
-                print(f"AirtimeUseCaseKyanda:: data", data)
+                _logger.log_text(f"AirtimeUseCaseKyanda:: data {data}")
 
                 if response.status_code == 200:
                     table_name = AIRTIME_RESPONSE_SUCCESS
-                    self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}_ref',
-                                          response_json.get('merchant_reference'), C2B_PAYBILL)
 
                     if response_json.get('status_code', None) not in ["0000", "1100"]:
-                        self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
+                        reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
                 else:
                     table_name = AIRTIME_RESPONSE_FAILED
-                    self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
+                    reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
 
                 self.db.save_record(data, table_name, response_json.get("merchant_reference", None))
-                self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}-{table_name}', response_json, C2B_PAYBILL)
 
             except Exception as ex:
-                print("AirtimeUseCaseKyanda:: ex", ex.__dict__)
-                print("AirtimeUseCaseKyanda:: ex", ex)
-                self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
+                _logger.log_text(f"AirtimeUseCaseKyanda:: ex {ex.__dict__}")
+                _logger.log_text(f"AirtimeUseCaseKyanda:: ex {ex}")
+                reverse_airtime(airtime.mpesa_code, airtime.amount_paid)

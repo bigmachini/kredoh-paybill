@@ -3,7 +3,8 @@ from dataclasses import asdict
 
 import requests
 
-from app.constants import C2B_PAYBILL, REVERSAL_RESPONSE_SUCCESS, REVERSAL_RESPONSE_FAILED
+from app import _logger
+from app.constants import REVERSAL_RESPONSE_SUCCESS
 from app.core.entities.safaricom import Reversal
 from app.core.repositories.firestore_repository import app_secret, FirestoreRepository
 from app.utils import encrypt_initiator_password, get_auth
@@ -16,6 +17,9 @@ class SafaricomUseCase:
         self.db = FirestoreRepository()
 
     def process_mpesa_reversal(self, body: Reversal):
+        if not self.mpesa_auth_token:
+            raise Exception("Failed to get auth token")
+
         access_token = self.mpesa_auth_token.get('access_token', None)
         api_url = app_secret['safaricom']['reversal_url']
         headers = {"Authorization": "Bearer %s" % access_token}
@@ -47,19 +51,17 @@ class SafaricomUseCase:
 
         try:
             response = requests.request("POST", f'{url}/reversal', headers=headers, json=payload)
-            print("process_mpesa_reversal:: response --> ", response.json())
+            _logger.log_text(f"process_mpesa_reversal:: response --> {response.json()}")
 
             if response.status_code == 200:
                 table_name = REVERSAL_RESPONSE_SUCCESS
-
                 res = response.json()
+                self.db.save_record({"request": asdict(body), "response": res, "mpesa_code": body.mpesa_code},
+                                    table_name,
+                                    body.mpesa_code)
             else:
-                table_name = REVERSAL_RESPONSE_FAILED
-                res = response.text
-
-            self.db.save_record({"request": asdict(body), "response": res}, table_name, body.mpesa_code)
-            self.db.update_record(body.mpesa_code, table_name, response.json(), C2B_PAYBILL)
+                raise Exception(f" response --> {response.text}")
 
         except Exception as ex:
-            print("process_mpesa_reversal:: ex", ex.__dict__)
+            _logger.log_text(f"process_mpesa_reversal:: ex {ex.__dict__}")
             raise Exception(f"{ex}")

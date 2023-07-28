@@ -1,6 +1,7 @@
-from app.core.services.safaricom_service import SafaricomService
 from app.core.entities.transaction import Transaction
 from app.core.interfaces.repositories import TransactionRepository
+from app.core.services.safaricom_service import SafaricomService
+
 
 class MockTransactionRepository(TransactionRepository):
     def save_transaction(self, transaction: Transaction) -> None:

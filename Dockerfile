@@ -18,6 +18,9 @@ WORKDIR /opt/kredoh-paybill
 # Copy the requirements file to the container
 COPY requirements.txt .
 
+# update pip
+RUN pip install --upgrade pip
+
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 

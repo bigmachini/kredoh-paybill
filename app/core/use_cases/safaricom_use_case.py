@@ -1,3 +1,4 @@
+import json
 from dataclasses import asdict
 
 import requests
@@ -86,7 +87,7 @@ class SafaricomUseCase:
                     "ResultURL": app_secret['safaricom']['transaction_status_result_url'],
                     "QueueTimeOutURL": app_secret['safaricom']['transaction_status_timeout_callback_url'],
                     "Remarks": body.mpesa_code,
-                    "Occasion": body.mpesa_code
+                    "Occasion": json.dumps(body.c2b_request.__dict__)
                     }
 
             payload = {
@@ -105,7 +106,8 @@ class SafaricomUseCase:
                 res = response.json()
                 self.db.save_record({"request": asdict(body), "response": res, "mpesa_code": body.mpesa_code},
                                     TRANSACTION_STATUS_RESPONSE,
-                                    body.mpesa_code)
+                                    res["ConversationID"])
+
             else:
                 raise Exception(f" response --> {response.text}")
 

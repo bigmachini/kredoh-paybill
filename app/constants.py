@@ -15,7 +15,7 @@ KYANDA_ERROR_CODES = {
     "5000": "Unexpected error has occurred.",
     "6001": "Cannot register the URL",
     "6002": "Invalid URL format.",
-    "7001": "Iransaction not found.",
+    "7001": "Transaction not found.",
     "8001": "Invalid account number format.",
     "8002": "Invalid phone number format.",
     "8003": "Invalid Telco.",

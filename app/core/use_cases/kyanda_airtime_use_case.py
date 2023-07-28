@@ -4,8 +4,7 @@ from dataclasses import asdict
 import requests
 
 from app import _logger
-from app.constants import DUPLICATE_TRANSACTION_ERROR, AIRTIME_RESPONSE_SUCCESS, AIRTIME_RESPONSE_FAILED, C2B_PAYBILL, \
-    REVERSALS
+from app.constants import DUPLICATE_TRANSACTION_ERROR, AIRTIME_RESPONSE_SUCCESS, AIRTIME_RESPONSE_FAILED, REVERSALS
 from app.core.entities.airtime import Airtime
 from app.core.interfaces.airtime_use_case import IAirtimeUseCase
 from app.core.repositories.firestore_repository import FirestoreRepository, app_secret
@@ -70,8 +69,6 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
 
                 if response.status_code == 200:
                     table_name = AIRTIME_RESPONSE_SUCCESS
-                    self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}_ref',
-                                          response_json.get('merchant_reference'), C2B_PAYBILL)
 
                     if response_json.get('status_code', None) not in ["0000", "1100"]:
                         self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
@@ -80,7 +77,6 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
                     self.reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
 
                 self.db.save_record(data, table_name, response_json.get("merchant_reference", None))
-                self.db.update_record(airtime.mpesa_code, f'{airtime.vendor}-{table_name}', response_json, C2B_PAYBILL)
 
             except Exception as ex:
                 _logger.log_text(f"AirtimeUseCaseKyanda:: ex {ex.__dict__}")

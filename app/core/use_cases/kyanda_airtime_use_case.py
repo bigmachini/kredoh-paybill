@@ -64,6 +64,7 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
 
                 if response.status_code == 200:
                     table_name = AIRTIME_RESPONSE_SUCCESS
+                    data['kyanda_ref'] = response_json.get('merchant_reference', None)
 
                     if response_json.get('status_code', None) not in ["0000", "1100"]:
                         reverse_airtime(airtime.mpesa_code, airtime.amount_paid)

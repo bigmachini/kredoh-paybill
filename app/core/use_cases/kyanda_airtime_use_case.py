@@ -35,6 +35,7 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
 
             # building the signature
             signature = f'{airtime.amount}{phone_number}{telco}{phone_number}{self.merchant_id}'
+            _logger.log_text(f"AirtimeUseCaseKyanda:: signature {signature}")
 
             # Selecting the correct api based on type of airtime
             if airtime.is_pin_less:

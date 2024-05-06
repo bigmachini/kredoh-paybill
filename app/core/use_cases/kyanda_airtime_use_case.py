@@ -35,7 +35,6 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
 
             # building the signature
             signature = f'{airtime.amount}{phone_number}{telco}{phone_number}{self.merchant_id}'
-            _logger.log_text(f"AirtimeUseCaseKyanda:: signature {signature}")
 
             # Selecting the correct api based on type of airtime
             if airtime.is_pin_less:
@@ -43,13 +42,18 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
             else:
                 url = f"{self.gateway_base_url}/billing/v1/pin-airtime/create"
 
+            hashed_signature = get_signature(signature, self.api_key)
+
+            _logger.log_text(f"AirtimeUseCaseKyanda:: signature {signature}  hashed signature {hashed_signature}")
             # building the payload
             payload = {"MerchantID": self.merchant_id,
                        "phoneNumber": phone_number,
                        "amount": str(airtime.amount),
                        "telco": telco,
                        "initiatorPhone": phone_number,
-                       "signature": get_signature(signature, self.api_key)}
+                       "signature": hashed_signature}
+
+            _logger.log_text(f"AirtimeUseCaseKyanda:: payload {payload}")
 
             try:
                 response = requests.post(

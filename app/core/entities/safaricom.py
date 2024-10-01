@@ -5,7 +5,7 @@ from typing import Union
 @dataclass
 class Reversal:
     mpesa_code: str
-    amount: int
+    amount: Union[int, str]
 
 
 @dataclass

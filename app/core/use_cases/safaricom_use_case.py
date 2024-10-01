@@ -32,7 +32,7 @@ class SafaricomUseCase:
                     "SecurityCredential": security_credential.decode('utf-8'),
                     "CommandID": "TransactionReversal",
                     "TransactionID": body.mpesa_code,
-                    "Amount": body.amount,
+                    "Amount": str(body.amount),
                     "ReceiverParty": app_secret['safaricom']['business_short_code'],
                     "RecieverIdentifierType": "11",
                     "ResultURL": app_secret['safaricom']['reversal_result_url'],

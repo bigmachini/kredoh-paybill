@@ -14,4 +14,5 @@ secrets = secretmanager.SecretManagerServiceClient()
 _name = f"projects/{os.environ.get('PROJECT_ID')}/" \
         f"secrets/{os.environ.get('SECRET_ID')}/" \
         f"versions/{os.environ.get('SECRET_VERSION')}"
-app_secret = json.loads(secrets.access_secret_version(request={"name": _name}).payload.data.decode("utf-8"))
+secret_json = secrets.access_secret_version(request={"name": _name}).payload.data.decode("utf-8")
+app_secret = json.loads(secret_json)

@@ -82,4 +82,5 @@ class AirtimeUseCaseKyanda(IAirtimeUseCase):
             except Exception as ex:
                 _logger.log_text(f"AirtimeUseCaseKyanda:: ex {ex.__dict__}")
                 _logger.log_text(f"AirtimeUseCaseKyanda:: ex {ex}")
-                reverse_airtime(airtime.mpesa_code, airtime.amount_paid)
+                if "409 Document already exists" not in str(ex):
+                    reverse_airtime(airtime.mpesa_code, airtime.amount_paid)

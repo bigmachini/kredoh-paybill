@@ -155,7 +155,6 @@ def callback_transaction_status(req: TransactionStatusCallbackResult):
     _logger.log_text(f"api::callback_transaction_status::req ++ {req.__dict__}")
 
     try:
-        _logger.log_text(f"api::callback_transaction_status::req.Result ++ {req.Result}")
         safaricom_service.process_transaction_status_callback(req.Result)
         return {"message": "Record saved successfully"}
     except Exception as ex:

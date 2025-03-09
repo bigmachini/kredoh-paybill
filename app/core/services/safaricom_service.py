@@ -40,8 +40,8 @@ class SafaricomService(ISafaricomService):
         self.db.save_record(callback.__dict__, REVERSAL_CALLBACK, callback.transaction_id)
 
     def process_dict(self, data):
-        if 'ResultParameters' in data['Result'] and 'ResultParameter' in data['Result']['ResultParameters']:
-            for param in data['Result']['ResultParameters']['ResultParameter']:
+        if 'ResultParameters' in data:
+            for param in data['ResultParameters']['ResultParameter']:
                 if param.get('Key') == 'OriginatorConversationID':
                     param['Value'] = str(param['Value'])
 

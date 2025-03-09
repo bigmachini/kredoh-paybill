@@ -150,11 +150,21 @@ def transaction_status(req: C2BRequest):
             raise HTTPException(status_code=500, detail=str(ex))
 
 
+def process_dict(data):
+    if 'ResultParameters' in data:
+        for param in data['ResultParameters']['ResultParameter']:
+            if param.get('Key') == 'OriginatorConversationID':
+                param['Value'] = str(param['Value'])
+
+    return data
 @router.post("/callback/transaction_status", status_code=status.HTTP_201_CREATED)
 def callback_transaction_status(req: TransactionStatusCallbackResult):
     _logger.log_text(f"api::callback_transaction_status::req ++ {req.__dict__}")
 
     try:
+        data = process_dict(req.Result)
+        _logger.log_text(f"api::callback_transaction_status::data +++++ {data}")
+
         safaricom_service.process_transaction_status_callback(req.Result)
         return {"message": "Record saved successfully"}
     except Exception as ex:
@@ -162,3 +172,7 @@ def callback_transaction_status(req: TransactionStatusCallbackResult):
             raise HTTPException(status_code=400, detail="Document already exists")
         else:
             raise HTTPException(status_code=500, detail=str(ex).split(":")[0])
+
+
+
+

@@ -159,7 +159,7 @@ def process_dict(data):
     return data
 @router.post("/callback/transaction_status", status_code=status.HTTP_201_CREATED)
 def callback_transaction_status(req: TransactionStatusCallbackResult):
-    _logger.log_text(f"api::callback_transaction_status::req ++ {req.__dict__}")
+    _logger.log_text(f"api::callback_transaction_status::req +--------+ {req.__dict__}")
 
     try:
         data = process_dict(req.Result)

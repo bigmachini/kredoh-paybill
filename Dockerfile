@@ -6,7 +6,7 @@ ENV PROJECT_ID kredoh
 
 #Secret manage for odoo-erp detais
 ENV SECRET_ID kredoh-paybill
-ENV SECRET_VERSION 5
+ENV SECRET_VERSION 7
 
 
 # Set the working directory in the container

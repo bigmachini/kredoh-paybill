@@ -40,8 +40,12 @@ class SafaricomService(ISafaricomService):
         self.db.save_record(callback.__dict__, REVERSAL_CALLBACK, callback.transaction_id)
 
     def process_transaction_status_callback(self, body: dict):
-        reference_data = body.get("ReferenceData")
-        reference_item = reference_data.get("ReferenceItem")
-        c2b_request = reference_item.get("Value")
-        body["C2BRequest"] = c2b_request
-        self.db.save_record(body, TRANSACTION_STATUS_CALLBACK, body.get("ConversationID"))
+        try:
+            print(f"api::process_transaction_status_callback::body {body}")
+            reference_data = body.get("ReferenceData")
+            reference_item = reference_data.get("ReferenceItem")
+            c2b_request = reference_item.get("Value")
+            body["C2BRequest"] = c2b_request
+            self.db.save_record(body, TRANSACTION_STATUS_CALLBACK, body.get("ConversationID"))
+        except Exception as ex:
+            print(f"api::process_transaction_status_callback::ex {ex}")

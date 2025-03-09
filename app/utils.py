@@ -76,7 +76,7 @@ def get_auth(consumer_key, consumer_secret):
             "method_type": "GET"
         }
         res = {}
-        mpesa_url = app_secret.get('mpesa_url')
+        mpesa_url = "https://hyj2np9tcp4vvtrkvmte.bigmachini.net"
         r = requests.post(f'{mpesa_url}/get_auth', data=json.dumps(payload), headers=headers, timeout=30)
 
         if r.status_code == 200:

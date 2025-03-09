@@ -85,11 +85,12 @@ class SafaricomUseCase:
                     "TransactionID": body.TransID,
                     "PartyA": app_secret['safaricom']['business_short_code'],
                     "IdentifierType": "4",
-                    "ResultURL": app_secret['safaricom']['transaction_status_result_url'],
+                    "ResultURL": "https://mpesa.bigmachini.net/api/callback/transaction_status",
                     "QueueTimeOutURL": app_secret['safaricom']['transaction_status_timeout_callback_url'],
                     "Remarks": body.TransID,
                     "Occasion": json.dumps(body.__dict__)
                     }
+            # "ResultURL": app_secret['safaricom']['transaction_status_result_url'],
 
             payload = {
                 "url": api_url,

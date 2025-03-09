@@ -39,9 +39,17 @@ class SafaricomService(ISafaricomService):
         # Save the transaction data
         self.db.save_record(callback.__dict__, REVERSAL_CALLBACK, callback.transaction_id)
 
+    def process_dict(self, data):
+        if 'ResultParameters' in data['Result'] and 'ResultParameter' in data['Result']['ResultParameters']:
+            for param in data['Result']['ResultParameters']['ResultParameter']:
+                if param.get('Key') == 'OriginatorConversationID':
+                    param['Value'] = str(param['Value'])
+
+        return data
+
     def process_transaction_status_callback(self, body: dict):
         try:
-            print(f"api::process_transaction_status_callback::body {body}")
+            body = self.process_dict(body)
             reference_data = body.get("ReferenceData")
             reference_item = reference_data.get("ReferenceItem")
             c2b_request = reference_item.get("Value")

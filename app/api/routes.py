@@ -63,17 +63,23 @@ def buy_airtime(airtime: Airtime):
 @router.post("/validation", status_code=status.HTTP_200_OK)
 def validation_api(transaction: C2BRequest):
     _logger.log_text(f"api::validation_api::transaction {transaction.__dict__}")
-
-    carrier = get_carrier_info(transaction.BillRefNumber)
-    _logger.log_text(f"carrier {carrier}")
-    if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 5 and float(
-            transaction.TransAmount) <= 5000:
-        write_to_bucket(transaction)
-        return {
-            "ResultCode": "0",
-            "ResultDesc": "Accepted",
-        }
-    else:
+    try:
+        carrier = get_carrier_info(transaction.BillRefNumber)
+        _logger.log_text(f"carrier {carrier}")
+        if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 5 and float(
+                transaction.TransAmount) <= 5000:
+            write_to_bucket(transaction)
+            return {
+                "ResultCode": "0",
+                "ResultDesc": "Accepted",
+            }
+        else:
+            return {
+                "ResultCode": "C2B00011",
+                "ResultDesc": "Rejected",
+            }
+    except Exception as ex:
+        _logger.log_text(f"api::validation_api::transaction_data  ex --> {ex}")
         return {
             "ResultCode": "C2B00011",
             "ResultDesc": "Rejected",

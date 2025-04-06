@@ -40,20 +40,17 @@ def create_transaction(transaction: C2BRequest):
             safaricom_service.process_c2b(transaction_data)
             return {"message": "Transaction created successfully"}
         else:
-            headers = {
-                'Content-Type': 'application/json'
-            }
-            url = 'https://bigmachini.net/api/v1/kredoh/c2b_transaction'
+            url = "https://bigmachini.net/api/v1/kredoh/c2b_transaction"
+
             payload = json.dumps(transaction_data)
+            headers = {
+                'Content-Type': 'application/json',
+            }
 
-            _logger.log_text(
-                f"api::create_transaction::transaction headers --> {headers} url --> {url} payload --> {payload}")
-            response = requests.request("POST", 'https://bigmachini.net/api/v1/kredoh/c2b_transaction',
-                                        headers=headers,
-                                        data=transaction_data)
-            _logger.log_text(
-                f"api::create_transaction::transaction response --> {response.status_code}")
+            _logger.log_text(f"api::create_transaction::transaction url --> {url} payload --> {payload}")
 
+            response = requests.request("POST", url, headers=headers, data=payload)
+            _logger.log_text(f"api::create_transaction::transaction response --> {response}")
             if response.status_code == 200:
                 _logger.log_text(
                     f"api::create_transaction::transaction response.json() --> {response.json()}")

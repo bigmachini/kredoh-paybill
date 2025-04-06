@@ -1,6 +1,3 @@
-import json
-
-import requests
 from fastapi import APIRouter, HTTPException, status
 
 from app import _logger
@@ -16,7 +13,7 @@ from app.core.services.safaricom_service import SafaricomService
 from app.core.use_cases.bonga_sms_use_case import SMSUseCaseBonga
 from app.core.use_cases.kyanda_airtime_use_case import AirtimeUseCaseKyanda
 from app.core.use_cases.safaricom_use_case import SafaricomUseCase
-from app.utils import get_carrier_info, reverse_airtime, write_to_bucket, delete_file
+from app.utils import get_carrier_info, reverse_airtime, write_to_bucket, delete_file, process_c2b
 
 router = APIRouter()
 safaricom_service = SafaricomService(FirestoreRepository())
@@ -34,38 +31,14 @@ def create_transaction(transaction: C2BRequest):
         _logger.log_text(f"carrier {carrier}")
         delete_file("kredoh-paybill", f"validation/{transaction.TransID}")
         transaction_data = transaction.dict()
+        process_c2b(transaction_data)
         if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 10 and float(
                 transaction.TransAmount) <= 5000:
             _logger.log_text(f"api::create_transaction::transaction_data {transaction_data}")
             safaricom_service.process_c2b(transaction_data)
             return {"message": "Transaction created successfully"}
         else:
-            url = "https://bigmachini.net/api/v1/kredoh/c2b_transaction"
-
-            payload = json.dumps({
-                "TransID": transaction.TransID,
-                "TransAmount": int(float(transaction.TransAmount)),
-                "BusinessShortCode": transaction.BusinessShortCode,
-                "BillRefNumber": transaction.BillRefNumber,
-            })
-
-            headers = {
-                'Content-Type': 'application/json',
-            }
-
-            _logger.log_text(f"api::create_transaction::transaction url --> {url} payload --> {payload}")
-
-            response = requests.request("POST", url, headers=headers, data=payload)
-            _logger.log_text(f"api::create_transaction::transaction response --> {response}")
-            if response.status_code == 200:
-                _logger.log_text(
-                    f"api::create_transaction::transaction response.json() --> {response.json()}")
-                reverse_airtime(transaction.TransID, int(float(transaction.TransAmount)))
-            else:
-                _logger.log_text(
-                    f"api::create_transaction::transaction response.json() --> {response.json()}")
-                raise Exception("C2B Request failed!")
-
+            reverse_airtime(transaction.TransID, int(float(transaction.TransAmount)))
     except Exception as ex:
         if str(ex).split(":")[0] == "409 Document already exists":
             raise HTTPException(status_code=400, detail="Document already exists")

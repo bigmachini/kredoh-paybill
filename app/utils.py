@@ -3,6 +3,7 @@ from base64 import b64encode
 from typing import Tuple
 
 import phonenumbers
+import requests
 from cryptography import x509
 from cryptography.hazmat.primitives.asymmetric import padding
 from google.cloud import storage
@@ -113,3 +114,29 @@ def delete_file(bucket_name: str, file_name: str):
     if blob.exists():
         blob.delete()
         _logger.log_text(f'delete_file File {file_name} deleted from {bucket_name}')
+
+
+def process_c2b(transaction):
+    url = "https://bigmachini.net/api/v1/kredoh/c2b_transaction"
+
+    payload = json.dumps({
+        "TransID": transaction.TransID,
+        "TransAmount": int(float(transaction.TransAmount)),
+        "BusinessShortCode": transaction.BusinessShortCode,
+        "BillRefNumber": transaction.BillRefNumber,
+    })
+
+    headers = {
+        'Content-Type': 'application/json',
+    }
+
+    _logger.log_text(f"api::process_c2b::  url --> {url} payload --> {payload}")
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+    _logger.log_text(f"api::create_transaction::  response --> {response}")
+    if response.status_code == 200:
+        _logger.log_text(
+            f"api::process_c2b:: success response.json() --> {response.json()}")
+    else:
+        _logger.log_text(
+            f"api::process_c2b:: failed response.text --> {response.text}")

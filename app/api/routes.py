@@ -41,7 +41,12 @@ def create_transaction(transaction: C2BRequest):
             headers = {
                 'Content-Type': 'application/json'
             }
-            response = requests.request("POST", 'https://bigmachini.net/api/v1/kredoh/c2b_transaction', headers=headers,
+            url = 'https://bigmachini.net/api/v1/kredoh/c2b_transaction'
+            _logger.log_text(
+                f"api::create_transaction::transaction headers --> {headers} url --> {url} transaction_data --> {transaction_data}")
+
+            response = requests.request("POST", 'https://bigmachini.net/api/v1/kredoh/c2b_transaction',
+                                        headers=headers,
                                         data=transaction_data)
             if response.status_code == 200:
                 print("C2B Request successful!")

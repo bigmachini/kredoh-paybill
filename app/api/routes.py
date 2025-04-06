@@ -1,3 +1,5 @@
+import json
+
 import requests
 from fastapi import APIRouter, HTTPException, status
 
@@ -42,17 +44,23 @@ def create_transaction(transaction: C2BRequest):
                 'Content-Type': 'application/json'
             }
             url = 'https://bigmachini.net/api/v1/kredoh/c2b_transaction'
-            _logger.log_text(
-                f"api::create_transaction::transaction headers --> {headers} url --> {url} transaction_data --> {transaction_data}")
+            payload = json.dumps(transaction_data)
 
+            _logger.log_text(
+                f"api::create_transaction::transaction headers --> {headers} url --> {url} payload --> {payload}")
             response = requests.request("POST", 'https://bigmachini.net/api/v1/kredoh/c2b_transaction',
                                         headers=headers,
                                         data=transaction_data)
+            _logger.log_text(
+                f"api::create_transaction::transaction response --> {response.status_code}")
+
             if response.status_code == 200:
-                print("C2B Request successful!")
-                print(f"Response: {response.json()}")
+                _logger.log_text(
+                    f"api::create_transaction::transaction response.json() --> {response.json()}")
                 reverse_airtime(transaction.TransID, int(float(transaction.TransAmount)))
             else:
+                _logger.log_text(
+                    f"api::create_transaction::transaction response.json() --> {response.json()}")
                 raise Exception("C2B Request failed!")
 
     except Exception as ex:

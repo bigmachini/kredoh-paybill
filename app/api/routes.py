@@ -42,7 +42,13 @@ def create_transaction(transaction: C2BRequest):
         else:
             url = "https://bigmachini.net/api/v1/kredoh/c2b_transaction"
 
-            payload = json.dumps(transaction_data)
+            payload = json.dumps({
+                "TransID": transaction.TransID,
+                "TransAmount": int(float(transaction.TransAmount)),
+                "BusinessShortCode": transaction.BusinessShortCode,
+                "BillRefNumber": transaction.BillRefNumber,
+            })
+
             headers = {
                 'Content-Type': 'application/json',
             }

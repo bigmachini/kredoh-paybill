@@ -26,7 +26,7 @@ def get_carrier_info(phone_number: str) -> [Tuple[str, str], None]:
         else:
             return None
     except phonenumbers.phonenumberutil.NumberParseException as ex:
-        _logger.log_text(f"ex {ex}")
+        _logger.log_text(f"get_carrier_info:: ex {ex}")
 
 
 def format_phone_number(phone_number):

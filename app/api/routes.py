@@ -1,3 +1,4 @@
+import requests
 from fastapi import APIRouter, HTTPException, status
 
 from app import _logger
@@ -30,14 +31,24 @@ def create_transaction(transaction: C2BRequest):
         carrier = get_carrier_info(transaction.BillRefNumber)
         _logger.log_text(f"carrier {carrier}")
         delete_file("kredoh-paybill", f"validation/{transaction.TransID}")
+        transaction_data = transaction.dict()
         if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 10 and float(
                 transaction.TransAmount) <= 5000:
-            transaction_data = transaction.dict()
             _logger.log_text(f"api::create_transaction::transaction_data {transaction_data}")
             safaricom_service.process_c2b(transaction_data)
             return {"message": "Transaction created successfully"}
         else:
-            reverse_airtime(transaction.TransID, int(float(transaction.TransAmount)))
+            headers = {
+                'Content-Type': 'application/json'
+            }
+            response = requests.request("POST", 'https://bigmachini.net/api/v1/kredoh/c2b_transaction', headers=headers,
+                                        data=transaction_data)
+            if response.status_code == 200:
+                print("C2B Request successful!")
+                print(f"Response: {response.json()}")
+                reverse_airtime(transaction.TransID, int(float(transaction.TransAmount)))
+            else:
+                raise Exception("C2B Request failed!")
 
     except Exception as ex:
         if str(ex).split(":")[0] == "409 Document already exists":

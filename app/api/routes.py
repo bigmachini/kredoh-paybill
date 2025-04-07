@@ -25,10 +25,10 @@ callback_services = {"kyanda": KyandaService(db)}
 
 @router.post("/confirmation", status_code=status.HTTP_200_OK)
 def create_transaction(transaction: C2BRequest):
-    _logger.log_text(f"api::create_transaction::transaction {transaction.__dict__}")
+    _logger.log_text(f"api::create_transaction:: transaction --> {transaction.__dict__}")
     try:
         carrier = get_carrier_info(transaction.BillRefNumber)
-        _logger.log_text(f"carrier {carrier}")
+        _logger.log_text(f"api::create_transaction:: carrier --> {carrier}")
         delete_file("kredoh-paybill", f"validation/{transaction.TransID}")
         transaction_data = transaction.dict()
         process_c2b(transaction_data)
@@ -40,6 +40,7 @@ def create_transaction(transaction: C2BRequest):
         else:
             reverse_airtime(transaction.TransID, int(float(transaction.TransAmount)))
     except Exception as ex:
+        _logger.log_text(f"api::create_transaction:: ex --> {ex}")
         if str(ex).split(":")[0] == "409 Document already exists":
             raise HTTPException(status_code=400, detail="Document already exists")
         else:

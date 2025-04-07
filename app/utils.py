@@ -121,10 +121,10 @@ def process_c2b(transaction):
     url = "https://bigmachini.net/api/v1/kredoh/c2b_transaction"
 
     payload = json.dumps({
-        "TransID": transaction.TransID,
-        "TransAmount": int(float(transaction.TransAmount)),
-        "BusinessShortCode": transaction.BusinessShortCode,
-        "BillRefNumber": transaction.BillRefNumber,
+        "TransID": transaction['TransID'],
+        "TransAmount": int(float(transaction['TransAmount'])),
+        "BusinessShortCode": transaction['BusinessShortCode'],
+        "BillRefNumber": transaction['BillRefNumber'],
     })
 
     headers = {

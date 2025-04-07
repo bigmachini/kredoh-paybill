@@ -117,6 +117,7 @@ def delete_file(bucket_name: str, file_name: str):
 
 
 def process_c2b(transaction):
+    _logger.log_text(f"api::process_c2b::  transaction --> {transaction}")
     url = "https://bigmachini.net/api/v1/kredoh/c2b_transaction"
 
     payload = json.dumps({

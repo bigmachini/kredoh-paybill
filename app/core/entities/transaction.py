@@ -17,7 +17,7 @@ class Transaction:
 
 class C2BRequest(BaseModel):
     TransID: str
-    TransTime: Optional[str]
+    TransTime: Optional[str] = None
     TransAmount: Optional[str] = None
     BusinessShortCode: Optional[str] = None
     BillRefNumber: Optional[str] = None

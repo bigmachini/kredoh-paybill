@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -16,9 +17,9 @@ class Transaction:
 
 class C2BRequest(BaseModel):
     TransID: str
-    TransTime: str
-    TransAmount: str
-    BusinessShortCode: str
-    BillRefNumber: str
-    ThirdPartyTransID: str
-    FirstName: str
+    TransTime: Optional[str]
+    TransAmount: Optional[str] = None
+    BusinessShortCode: Optional[str] = None
+    BillRefNumber: Optional[str] = None
+    ThirdPartyTransID: Optional[str] = None
+    FirstName: Optional[str] = None

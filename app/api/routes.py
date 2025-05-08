@@ -34,7 +34,6 @@ def create_transaction(transaction: C2BRequest):
         process_c2b(transaction_data)
         if carrier and carrier[0] in ALLOWED_TELCOS and float(transaction.TransAmount) >= 10 and float(
                 transaction.TransAmount) <= 5000:
-            _logger.log_text(f"api::create_transaction::transaction_data {transaction_data}")
             safaricom_service.process_c2b(transaction_data)
             return {"message": "Transaction created successfully"}
         else:

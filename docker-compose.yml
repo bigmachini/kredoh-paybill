@@ -8,7 +8,11 @@ services:
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
     volumes:
-      # Inject your specific service account keyfile into the container at runtime.
       - ${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
-    network_mode: host
+    networks:
+      - mynet
     restart: unless-stopped
+
+networks:
+  mynet:
+    driver: bridge

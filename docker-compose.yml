@@ -3,12 +3,16 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: kredoh-paybill
     ports:
       - "7070:7070"
     environment:
       GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
     volumes:
+      # Mount your service account key into the container (read-only)
       - ${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
+      # Persistent data volume
+      - app_data:/opt/kredoh-paybill/data
     networks:
       - mynet
     restart: unless-stopped
@@ -16,3 +20,7 @@ services:
 networks:
   mynet:
     driver: bridge
+
+volumes:
+  app_data:
+    driver: local

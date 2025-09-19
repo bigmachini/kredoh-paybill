@@ -15,6 +15,4 @@ _name = f"projects/{os.environ.get('PROJECT_ID')}/" \
         f"secrets/{os.environ.get('SECRET_ID')}/" \
         f"versions/{os.environ.get('SECRET_VERSION')}"
 secret_json = secrets.access_secret_version(request={"name": _name}).payload.data.decode("utf-8")
-print(f'Retrieved secret: {secret_json}')
 app_secret = json.loads(secret_json)
-print(f'app_secret: {app_secret}')

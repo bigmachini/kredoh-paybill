@@ -19,7 +19,6 @@ class SafaricomUseCase:
 
     def process_mpesa_reversal(self, body: Reversal):
         if not self.mpesa_auth_token:
-            print(f'mpesa_auth_token: ++++ {self.mpesa_auth_token}')
             raise Exception("Failed to get auth token")
         else:
             access_token = self.mpesa_auth_token.get('access_token', None)
@@ -70,7 +69,6 @@ class SafaricomUseCase:
 
     def check_transaction_status(self, body: C2BRequest):
         if not self.mpesa_auth_token:
-            print(f'mpesa_auth_token: --- {self.mpesa_auth_token}')
             raise Exception("Failed to get auth token")
         else:
             access_token = self.mpesa_auth_token.get('access_token', None)

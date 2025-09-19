@@ -78,9 +78,7 @@ def get_auth(consumer_key, consumer_secret):
         }
         res = {}
         mpesa_url = app_secret.get('mpesa_url')
-        print(f'get_auth: mpesa_url --> {mpesa_url}')
         r = requests.post(f'{mpesa_url}/get_auth', data=json.dumps(payload), headers=headers, timeout=30)
-        print(f'get_auth: --- {r}')
         if r.status_code == 200:
             from time import time
             int(time())
@@ -142,28 +140,3 @@ def process_c2b(transaction):
     else:
         _logger.log_text(
             f"api::process_c2b:: failed response.text --> {response.text}")
-
-
-x = {'discount': 0.01, 'mpesa_url': 'https://hyj2np9tcp4vvtrkvmte.bigmachini.net',
-     'safaricom': {'consumer_key': 'nNm0u8GA3mV00GQeOnaxLwhzfyKIvjTc', 'consumer_secret': 't9GohkGOgGWzAlfL',
-                   'business_short_code': '4091221', 'initiator': 'kredoh', 'initiator_pass': 'Z5G!8*hPoTovrU#',
-                   'stk_push_url': 'https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
-                   'stk_query_url': 'https://api.safaricom.co.ke/mpesa/stkpushquery/v1/query',
-                   'stk_push_call_back_url': 'https://kredoh-api-hjcvzq6kaq-ez.a.run.app/stk_push_callback',
-                   'reversal_url': 'https://api.safaricom.co.ke/mpesa/reversal/v1/request',
-                   'reversal_result_url': 'https://mpesa.bigmachini.net/api/callback/reversal',
-                   'reversal_timeout_callback_url': 'https://mpesa.bigmachini.net/api/callback/reversal',
-                   'cert_bucket_name': 'daraja-cert', 'cert_file_name': 'production.cer',
-                   'transaction_status_url': 'https://api.safaricom.co.ke/mpesa/transactionstatus/v1/query',
-                   'transaction_status_result_url': 'https://mpesa.bigmachini.net/api/callback/transaction_status',
-                   'transaction_status_timeout_callback_url': 'https://mpesa.bigmachini.net/api/callback/transaction_status'},
-     'bonga_api': {'client_id': 259, 'key': 'EDldQ0GhYvpao35', 'secret': '6hqmVYTKvULfpCYQrRiOXzjZ5NlA2S',
-                   'url': 'https://app.bongasms.co.ke/api/vend-pinless-airtime',
-                   'vend_pinless_airtime': 'https://app.bongasms.co.ke/api/vend-pinless-airtime',
-                   'check_airtime_url': 'https://app.bongasms.co.ke/api/check-airtime-transaction',
-                   'url_send_sms': 'https://app.bongasms.co.ke/api/send-sms-v1',
-                   'url_prepaid_token': 'https://app.bongasms.co.ke/api/vend-prepaid-token'},
-     'kyanda': {'base_url': 'https://api.kyanda.app', 'api_check_balance': '/billing/v1/account-balance',
-                'api_transaction_check': '/billing/v1/transaction-check', 'api_airtime': '/billing/v1/airtime/create',
-                'api_bill': '/billing/v1/bill/create', 'api_register_callback': '/billing/v1/callback-url/create',
-                'api_key': '8203743af7294cea9740dba00dd38189'}}

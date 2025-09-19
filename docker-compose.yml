@@ -7,13 +7,11 @@ services:
     ports:
       - "7070:7070"
     environment:
-      GOOGLE_APPLICATION_CREDENTIALS: ${GOOGLE_APPLICATION_CREDENTIALS}
-      # Silence gRPC ALTS warnings
+      GOOGLE_APPLICATION_CREDENTIALS: /opt/.google/google.json      # Silence gRPC ALTS warnings
       GRPC_VERBOSITY: ERROR
       GRPC_ENABLE_FORK_SUPPORT: "0"
     volumes:
-      # Mount your service account key into the container (read-only)
-      - ${GOOGLE_APPLICATION_CREDENTIALS}:${GOOGLE_APPLICATION_CREDENTIALS}:ro
+      - /opt/.google/google.json:/opt/.google/google.json:ro
       # Persistent data volume
       - app_data:/opt/kredoh-paybill/data
     networks:
